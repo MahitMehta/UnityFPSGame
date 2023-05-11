@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using WebSocketSharp;
+using NativeWebSocket;
 
 public class NetworkManager : MonoBehaviour
 {
     private readonly static string MAHITM_UNITY_WS_SERVER_ADDRESS = "wss://unity.mahitm.com/unity";
-    private readonly static string MAHITM_UNITY_HTTP_SERVER_ADDRESS = "http://unity.mahitm.com/unity";
+    private readonly static string MAHITM_UNITY_HTTP_SERVER_ADDRESS = "https://unity.mahitm.com/unity";
 
     [System.Serializable]
     public class WSRoomBody
@@ -76,38 +76,53 @@ public class NetworkManager : MonoBehaviour
         ws.Close();
     }
 
-    protected void ConnectToWebSocket(string userId)
+    async protected void ConnectToWebSocket(string userId)
     {
         if (ws != null) return;
 
         ws = new WebSocket(MAHITM_UNITY_WS_SERVER_ADDRESS + "?userId=" + userId);
-        ws.Connect();
-
-        ws.OnMessage += (sender, e) =>
+      
+        ws.OnMessage += (bytes) =>
         {
-            WSMessage message = JsonUtility.FromJson<WSMessage>(e.Data);
+            Debug.Log("message!");
+            Debug.Log(bytes);
+           var data = System.Text.Encoding.UTF8.GetString(bytes);
+          
+            WSMessage message = JsonUtility.FromJson<WSMessage>(data);
 
             if (message.type.Equals("created_room"))
             {
-                WSMessage<WSRoomBody> createdRoomMSG = JsonUtility.FromJson<WSMessage<WSRoomBody>>(e.Data);
+                WSMessage<WSRoomBody> createdRoomMSG = JsonUtility.FromJson<WSMessage<WSRoomBody>>(data);
                 OnCreatedRoom(createdRoomMSG.body.name);
             } else if (message.type.Equals("joined_room"))
             {
-                WSMessage<WSJoinedRoomBody> joinedRoomMSG = JsonUtility.FromJson<WSMessage<WSJoinedRoomBody>>(e.Data);
+                WSMessage<WSJoinedRoomBody> joinedRoomMSG = JsonUtility.FromJson<WSMessage<WSJoinedRoomBody>>(data);
                 OnJoinedRoom(joinedRoomMSG.body.name, joinedRoomMSG.body.userId);
             }
             else if (message.type.Equals("left_room"))
             {
-                WSMessage<WSLeftRoomBody> leftRoomMSG = JsonUtility.FromJson<WSMessage<WSLeftRoomBody>>(e.Data);
+                WSMessage<WSLeftRoomBody> leftRoomMSG = JsonUtility.FromJson<WSMessage<WSLeftRoomBody>>(data);
                 OnLeftRoom(leftRoomMSG.body.userId);
             }
             else if (message.type.Equals("batch_transform"))
             {
-                WSMessage<WSBatchTransformationBody> batchTransformMSG = JsonUtility.FromJson<WSMessage<WSBatchTransformationBody>>(e.Data);
+                WSMessage<WSBatchTransformationBody> batchTransformMSG = JsonUtility.FromJson<WSMessage<WSBatchTransformationBody>>(data);
                 OnBatchTransform(batchTransformMSG.body.transformations);
             }
         };
+
+ 
+
+        await ws.Connect();
+        Debug.Log(ws.State);
     }
+
+    void Update()
+    {
+    #if !UNITY_WEBGL || UNITY_EDITOR
+            ws.DispatchMessageQueue();
+    #endif
+        }
 
     public void BroadcastBatchTransform(List<BatchTransform> bt)
     {
@@ -118,7 +133,7 @@ public class NetworkManager : MonoBehaviour
             body = body
         };
 
-        ws.Send(JsonUtility.ToJson(msg));
+        ws.SendText(JsonUtility.ToJson(msg));
     }
 
     protected IEnumerator GetAllRoomClients(string room)
@@ -164,7 +179,7 @@ public class NetworkManager : MonoBehaviour
             body = rb
         };
 
-        ws.Send(JsonUtility.ToJson(msg));
+        ws.SendText(JsonUtility.ToJson(msg));
     }
 
     protected void CreateRoom(string roomName)
@@ -176,7 +191,7 @@ public class NetworkManager : MonoBehaviour
             body = rb
         };
 
-        ws.Send(JsonUtility.ToJson(msg));
+        ws.SendText(JsonUtility.ToJson(msg));
     }
 
     protected virtual void OnRetrievedAllClientsForRoom(string room, List<string> clients) {}
