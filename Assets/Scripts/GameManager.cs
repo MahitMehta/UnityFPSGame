@@ -77,7 +77,11 @@ public class GameManager : NetworkManager
     {
         yield return SceneManager.LoadSceneAsync("RoomScene");
         StartCoroutine(GetAllRoomClients(room));
-        if (RoomManager.Exists()) RoomManager.Instance().SetRoomName(room);
+        if (RoomManager.Exists())
+        {
+            RoomManager.Instance().OnEnterRoom();
+            RoomManager.Instance().SetRoomName(room);
+        }
     }
 
     protected override void OnRetrievedAllClientsForRoom(string room, List<string> clients)
@@ -98,6 +102,7 @@ public class GameManager : NetworkManager
             // Consider Refetching all Room Clients and not just adding the new user's id
             UnityMainThreadDispatcher.Instance().Enqueue(delegate
             {
+                RoomManager.Instance().OnEnterRoom();
                 List<string> newClients = new List<string>();
                 newClients.Add(joinedUserId);
                 if (RoomManager.Exists()) RoomManager.Instance().AddClients(newClients);

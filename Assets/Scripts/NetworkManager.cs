@@ -6,8 +6,10 @@ using NativeWebSocket;
 
 public class NetworkManager : MonoBehaviour
 {
-    private readonly static string MAHITM_UNITY_WS_SERVER_ADDRESS = "wss://unity.mahitm.com/unity";
-    private readonly static string MAHITM_UNITY_HTTP_SERVER_ADDRESS = "https://unity.mahitm.com/unity";
+    // private readonly static string MAHITM_UNITY_WS_SERVER_ADDRESS = "wss://unity.mahitm.com/unity";
+    // private readonly static string MAHITM_UNITY_HTTP_SERVER_ADDRESS = "https://unity.mahitm.com/unity";
+    private readonly static string MAHITM_UNITY_WS_SERVER_ADDRESS = "ws://localhost:3000/unity";
+    private readonly static string MAHITM_UNITY_HTTP_SERVER_ADDRESS = "http://localhost:3000/unity";
 
     [System.Serializable]
     public class WSRoomBody

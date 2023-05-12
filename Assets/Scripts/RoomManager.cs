@@ -28,34 +28,71 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
-              
+
+    }
+
+    public void OnEnterRoom()
+    {
+        NetworkManager.BatchTransform bt = new NetworkManager.BatchTransform()
+        {
+            go = player.name,
+            type = "position",
+            userId = GameManager.gm.userId,
+            vector = new List<float>() {
+                    player.transform.position.x,
+                    player.transform.position.y,
+                    player.transform.position.z
+                }
+        };
+
+        List<NetworkManager.BatchTransform> bts = new() { bt };
+        GameManager.gm.BroadcastBatchTransform(bts);
     }
 
     public void Update()
     {
         if (Input.GetKey(KeyCode.W))
         {
-            Vector3 change = new Vector3(1, 0, 0) * Time.deltaTime;
+            Vector3 change = new Vector3(0, 0, 1) * Time.deltaTime;
             player.transform.position += change; 
+        }
 
-            if (elapsedTime > 0.050f)
+        if (Input.GetKey(KeyCode.A))
+        {
+            Vector3 change = new Vector3(-1, 0, 0) * Time.deltaTime;
+            player.transform.position += change;
+        }
+
+
+        if (Input.GetKey(KeyCode.D))
+        {
+            Vector3 change = new Vector3(1, 0, 0) * Time.deltaTime;
+            player.transform.position += change;
+        }
+
+        if (Input.GetKey(KeyCode.S))
+        {
+            Vector3 change = new Vector3(1, 0, -1) * Time.deltaTime;
+            player.transform.position += change;
+        }
+
+        if (elapsedTime > 0.033f)
+        {
+            NetworkManager.BatchTransform bt = new NetworkManager.BatchTransform()
             {
-                NetworkManager.BatchTransform bt = new NetworkManager.BatchTransform()
-                {
-                    go = player.name,
-                    type = "position",
-                    userId = GameManager.gm.userId,
-                    vector = new List<float>() {
+                go = player.name,
+                type = "position",
+                userId = GameManager.gm.userId,
+                vector = new List<float>() {
                     player.transform.position.x,
                     player.transform.position.y,
                     player.transform.position.z
                 }
-                };
+            };
 
-                List<NetworkManager.BatchTransform> bts = new() { bt };
-                GameManager.gm.BroadcastBatchTransform(bts);
-                elapsedTime = 0; 
-            }
+            List<NetworkManager.BatchTransform> bts = new() { bt };
+            GameManager.gm.BroadcastBatchTransform(bts);
+            elapsedTime = 0;
         }
 
         elapsedTime += Time.deltaTime;
