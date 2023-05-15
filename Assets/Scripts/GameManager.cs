@@ -11,6 +11,7 @@ public class GameManager : NetworkManager
     public Button createRoom;
     public Button joinRoom;
 
+    public TMPro.TMP_InputField usernameField;
     public TMPro.TMP_InputField newRoomField;
     public TMPro.TMP_Dropdown roomOptions;
 
@@ -25,8 +26,9 @@ public class GameManager : NetworkManager
         else Destroy(gameObject);
     }
 
-    void Start()
+    protected override void Start()
     {
+        base.Start();
         userId = System.Guid.NewGuid().ToString();
 
         StartCoroutine(GetAllRooms());
@@ -57,6 +59,28 @@ public class GameManager : NetworkManager
         AddRoomsToDropdown(rooms);
     }
 
+    protected override void OnSetUserProperty(string userId, string property, string value)
+    {
+        if (!RoomManager.Exists()) return;
+
+        UnityMainThreadDispatcher.Instance().Enqueue(delegate
+        {
+            // doesn't typically run because 
+            if (property == "username")
+            {
+                Debug.Log("propwwwww" + RoomManager.Instance().clients.options.Count);
+                foreach (var client in RoomManager.Instance().clients.options)
+                {
+                    Debug.Log("text" + client.text);
+                    Debug.Log("userId" + userId);
+                    if (client.text == userId) client.text = value;
+                    RoomManager.Instance().clients.RefreshShownValue();
+                    break; 
+                }
+            }
+        });
+    }
+
     private void AddRoomsToDropdown(List<string> rooms) {
         List<TMPro.TMP_Dropdown.OptionData> options = new List<TMPro.TMP_Dropdown.OptionData>();
 
@@ -81,6 +105,7 @@ public class GameManager : NetworkManager
         {
             RoomManager.Instance().OnEnterRoom();
             RoomManager.Instance().SetRoomName(room);
+            SetUserProperty("username", userId, usernameField.text);
         }
     }
 

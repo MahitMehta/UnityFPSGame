@@ -28,7 +28,12 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
+        player.AddComponent<Rigidbody>();
+    }
 
+    public void OnLeftRoom(string userId)
+    {
+       
     }
 
     public void OnEnterRoom()
@@ -76,9 +81,14 @@ public class RoomManager : MonoBehaviour
             player.transform.position += change;
         }
 
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            player.GetComponent<Rigidbody>().AddForce(Vector3.up * 5f, ForceMode.Impulse);
+        }
+
         if (elapsedTime > 0.033f)
         {
-            NetworkManager.BatchTransform bt = new NetworkManager.BatchTransform()
+            NetworkManager.BatchTransform btPosition = new ()
             {
                 go = player.name,
                 type = "position",
@@ -89,8 +99,20 @@ public class RoomManager : MonoBehaviour
                     player.transform.position.z
                 }
             };
+            NetworkManager.BatchTransform btRotation = new()
+            {
+                go = player.name,
+                type = "rotation",
+                userId = GameManager.gm.userId,
+                vector = new List<float>() {
+                    player.transform.eulerAngles.x,
+                    player.transform.eulerAngles.y,
+                    player.transform.eulerAngles.z
+                }
+            };
 
-            List<NetworkManager.BatchTransform> bts = new() { bt };
+
+            List<NetworkManager.BatchTransform> bts = new() { btPosition, btRotation };
             GameManager.gm.BroadcastBatchTransform(bts);
             elapsedTime = 0;
         }
@@ -113,7 +135,14 @@ public class RoomManager : MonoBehaviour
                 go.name = bt.go + ":" + bt.userId;
 
             }
-            go.transform.position = new Vector3(bt.vector[0], bt.vector[1], bt.vector[2]);
+
+            if (bt.type == "position")
+            {   
+                go.transform.position = new Vector3(bt.vector[0], bt.vector[1], bt.vector[2]);
+            } else if (bt.type == "rotation")
+            {
+                go.transform.rotation = Quaternion.Euler(bt.vector[0], bt.vector[1], bt.vector[2]);
+            }
         }
     }
 
@@ -139,16 +168,23 @@ public class RoomManager : MonoBehaviour
 
     public void RemoveClient(string disconnectedClientId)
     {
-        TMPro.TMP_Dropdown.OptionData filteredOptions = clients.options.Find((x) => x.text == disconnectedClientId);
+        TMPro.TMP_Dropdown.OptionData filteredOptions = clients.options.Find((x) =>
+        {
+            return x.text == disconnectedClientId || x.text == GameManager.gm.GetUser(disconnectedClientId)?.username;
+        });
         clients.options.Remove(filteredOptions);
         clients.RefreshShownValue();
     }
 
     public void AddClients(List<string> newClients)
     {
-        List<TMPro.TMP_Dropdown.OptionData> options = new List<TMPro.TMP_Dropdown.OptionData>();
+        List<TMPro.TMP_Dropdown.OptionData> options = new();
 
-        foreach (string client in newClients) options.Add(new TMPro.TMP_Dropdown.OptionData(client));
+        foreach (string client in newClients)
+        {
+            var user = GameManager.gm.GetUser(client);
+            options.Add(new TMPro.TMP_Dropdown.OptionData(user != null ? user.username : client));
+        }
 
         clients.AddOptions(options);
 
