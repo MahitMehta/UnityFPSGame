@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,7 +29,7 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
-
+        player.AddComponent<Rigidbody>();
     }
 
     public void OnEnterRoom()
@@ -39,10 +40,10 @@ public class RoomManager : MonoBehaviour
             type = "position",
             userId = GameManager.gm.userId,
             vector = new List<float>() {
-                    player.transform.position.x,
-                    player.transform.position.y,
-                    player.transform.position.z
-                }
+                player.transform.position.x,
+                player.transform.position.y,
+                player.transform.position.z
+            }
         };
 
         List<NetworkManager.BatchTransform> bts = new() { bt };
@@ -87,7 +88,7 @@ public class RoomManager : MonoBehaviour
                     player.transform.position.x,
                     player.transform.position.y,
                     player.transform.position.z
-                }
+                },
             };
 
             List<NetworkManager.BatchTransform> bts = new() { bt };
@@ -98,6 +99,9 @@ public class RoomManager : MonoBehaviour
         elapsedTime += Time.deltaTime;
     }
 
+    private float lastBatch = DateTime.Now.Millisecond;
+    private Coroutine interpolate;
+    private bool interpolatin = false;
     public void HandleBatchTransformations(List<NetworkManager.BatchTransform> transformations)
     {
         Debug.Log("Count: " + transformations.Count);
@@ -113,8 +117,49 @@ public class RoomManager : MonoBehaviour
                 go.name = bt.go + ":" + bt.userId;
 
             }
-            go.transform.position = new Vector3(bt.vector[0], bt.vector[1], bt.vector[2]);
+
+           if (go.GetComponent<Interpolator>() == null)
+            {
+                Interpolator t = go.AddComponent<Interpolator>();
+            }
+            go.GetComponent<Interpolator>().setTargetPos(new Vector3(bt.vector[0], bt.vector[1], bt.vector[2]));
+
+            /*if (!interpolatin)
+            {
+                interpolate = StartCoroutine(Interpolate(go, bt, DateTime.Now.Millisecond - lastBatch));
+            }*/
+            //time between the batches
+            Debug.Log(DateTime.Now.Millisecond - lastBatch);
+
+
+
+
+
+            //go.transform.position = new Vector3(bt.vector[0], bt.vector[1], bt.vector[2]);
         }
+        lastBatch = DateTime.Now.Millisecond;
+    }
+
+    //not used
+    public IEnumerator Interpolate(GameObject from, NetworkManager.BatchTransform to, float timeSinceLastBatch)
+    {
+        interpolatin = true;
+        Vector3 fromPos = from.transform.position;
+        Vector3 toPos = new Vector3(to.vector[0], to.vector[1], to.vector[2]);
+        //from.transform.position = toPos;
+        //toPos = toPos * 2 - fromPos;
+        //Quaternion toRot = new Quaternion(to.rotVector[0], to.rotVector[1], to.rotVector[2], to.rotVector[3]);
+        float timePassed = 0;
+        while (timePassed < timeSinceLastBatch)
+        {
+            Debug.Log("percent " + timePassed / timeSinceLastBatch);
+           
+            from.transform.position = Vector3.LerpUnclamped(fromPos, toPos, timePassed/timeSinceLastBatch);
+            timePassed += Time.deltaTime * 1000;
+
+            yield return null;
+        }
+        interpolatin = false;
     }
 
     public static bool Exists()

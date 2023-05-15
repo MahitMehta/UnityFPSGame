@@ -6,10 +6,10 @@ using NativeWebSocket;
 
 public class NetworkManager : MonoBehaviour
 {
-    // private readonly static string MAHITM_UNITY_WS_SERVER_ADDRESS = "wss://unity.mahitm.com/unity";
-    // private readonly static string MAHITM_UNITY_HTTP_SERVER_ADDRESS = "https://unity.mahitm.com/unity";
-    private readonly static string MAHITM_UNITY_WS_SERVER_ADDRESS = "ws://localhost:3000/unity";
-    private readonly static string MAHITM_UNITY_HTTP_SERVER_ADDRESS = "http://localhost:3000/unity";
+     private readonly static string MAHITM_UNITY_WS_SERVER_ADDRESS = "wss://unity.mahitm.com/unity";
+     private readonly static string MAHITM_UNITY_HTTP_SERVER_ADDRESS = "https://unity.mahitm.com/unity";
+    //private readonly static string MAHITM_UNITY_WS_SERVER_ADDRESS = "ws://localhost:3000/unity";
+    //private readonly static string MAHITM_UNITY_HTTP_SERVER_ADDRESS = "http://localhost:3000/unity";
 
     [System.Serializable]
     public class WSRoomBody
@@ -61,7 +61,7 @@ public class NetworkManager : MonoBehaviour
         public string type; // position | rotation
         public string go; // gameobject name
         public string userId;
-        public List<float> vector; 
+        public List<float> vector;
     }
 
     [System.Serializable]
@@ -114,7 +114,7 @@ public class NetworkManager : MonoBehaviour
         };
 
  
-
+        
         await ws.Connect();
         Debug.Log(ws.State);
     }
