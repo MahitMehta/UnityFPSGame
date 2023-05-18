@@ -14,10 +14,11 @@ public class RoomManager : MonoBehaviour
     public GameObject player;
     public Button startGame;
 
+
     private static RoomManager _instance;
     private float elapsedTime = 0;
 
-    private Vector3 vel = new Vector3(0,0,0); 
+    private Vector3 vel = new Vector3(0, 0, 0);
 
     void Awake()
     {
@@ -43,11 +44,12 @@ public class RoomManager : MonoBehaviour
                     GameManager.instance.ContructBroadcastMethodCallMessage("ChangeScene")
             });
         });
+
     }
 
     public void OnLeftRoom(string userId)
     {
-       
+
     }
 
     public void OnEnterRoom()
@@ -95,14 +97,14 @@ public class RoomManager : MonoBehaviour
              });
         }
 
-        
+
         if (elapsedTime > 0.033f)
 
         {
-            BatchTransform btTransform = new ()
+            BatchTransform btTransform = new()
             {
                 go = player.name,
-                ts= GetNanoseconds(),
+                ts = GetNanoseconds(),
                 type = "transform",
                 userId = GameManager.instance.userId,
                 position = new List<float>() {
@@ -116,7 +118,7 @@ public class RoomManager : MonoBehaviour
                     player.transform.eulerAngles.z
                 }
             };
-           
+
 
 
             List<BatchTransform> bts = new() { btTransform };
@@ -130,12 +132,14 @@ public class RoomManager : MonoBehaviour
 
     public void HandleBatchTransformations(List<BatchTransform> transformations)
     {
-        foreach (BatchTransform bt in transformations) {
-            GameObject go; 
+        foreach (BatchTransform bt in transformations)
+        {
+            GameObject go;
             if (GameObject.Find(bt.go + ":" + bt.userId) != null)
             {
                 go = GameObject.Find(bt.go + ":" + bt.userId);
-            } else
+            }
+            else
             {
                 go = Instantiate(Resources.Load(bt.go, typeof(GameObject))) as GameObject;
                 go.name = bt.go + ":" + bt.userId;
@@ -181,7 +185,7 @@ public class RoomManager : MonoBehaviour
 
     public void SetRoomName(string roomName)
     {
-        roomNameLabel.text = "Room: " + roomName; 
+        roomNameLabel.text = "Room: " + roomName;
     }
 
     public void RemoveClient(string disconnectedClientId)
@@ -201,7 +205,7 @@ public class RoomManager : MonoBehaviour
         foreach (string client in GameManager.instance.users.Keys)
         {
             var user = GameManager.instance.GetUser(client);
-            if (!user.isConnected) continue; 
+            if (!user.isConnected) continue;
             options.Add(new TMPro.TMP_Dropdown.OptionData(user != null ? user.username : client));
         }
 
