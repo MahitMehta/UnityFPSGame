@@ -16,6 +16,7 @@ public class PlayerMovement : MonoBehaviour
     float speedx = 0;
     float time, deathTime;
     private Rigidbody rigidbody;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -48,6 +49,7 @@ public class PlayerMovement : MonoBehaviour
         {
             moveZ(true);
         }
+
 
     }
 

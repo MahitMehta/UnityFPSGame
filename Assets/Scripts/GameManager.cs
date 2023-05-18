@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using WSMessage; 
 
 public class GameManager : NetworkManager
 {
-    public static GameManager gm;
+    public static GameManager instance;
 
     public Button createRoom;
     public Button joinRoom;
 
+    public TMPro.TMP_InputField usernameField;
     public TMPro.TMP_InputField newRoomField;
     public TMPro.TMP_Dropdown roomOptions;
 
@@ -21,12 +23,13 @@ public class GameManager : NetworkManager
     {
         DontDestroyOnLoad(this);
 
-        if (gm == null) gm = this;
+        if (instance == null) instance = this;
         else Destroy(gameObject);
     }
 
-    void Start()
+    protected override void Start()
     {
+        base.Start();
         userId = System.Guid.NewGuid().ToString();
 
         StartCoroutine(GetAllRooms());
@@ -35,12 +38,19 @@ public class GameManager : NetworkManager
         if (SceneManager.GetActiveScene().name.Equals("LobbyScene"))
         {
             createRoom.onClick.AddListener(delegate {
-                CreateRoom(newRoomField.text);
+                SendMessages(new List<Message>() {
+                    ContructUserPropertyMessage("username", userId, usernameField.text),
+                    ContructCreateRoomMessage(newRoomField.text),
+                });
             });
 
             joinRoom.onClick.AddListener(delegate {
                 string selectedRoom = roomOptions.options[roomOptions.value].text;
-                JoinRoom(selectedRoom);
+  
+                SendMessages(new List<Message>() {
+                    ContructUserPropertyMessage("username", userId, usernameField.text),
+                    ContructJoinRoomMessage(selectedRoom),
+                });
             });
         }
     }
@@ -55,6 +65,19 @@ public class GameManager : NetworkManager
     protected override void OnRetrievedAllRooms(List<string> rooms)
     {
         AddRoomsToDropdown(rooms);
+    }
+
+    protected override void OnSetUserProperty(string userId, string property, string value)
+    {
+        if (!RoomManager.Exists()) return;
+
+        UnityMainThreadDispatcher.Instance().Enqueue(delegate
+        {
+            if (property == "username")
+            {
+                RoomManager.Instance().RefreshUsernames();
+            }
+        });
     }
 
     private void AddRoomsToDropdown(List<string> rooms) {
@@ -84,15 +107,13 @@ public class GameManager : NetworkManager
         }
     }
 
-    protected override void OnRetrievedAllClientsForRoom(string room, List<string> clients)
+    protected override void OnRetrievedAllClientsForRoom(string room, List<User> clients)
     {
         if (RoomManager.Exists()) RoomManager.Instance().AddClients(clients);
     }
 
-    protected override void OnJoinedRoom(string roomName, string joinedUserId)
+    protected override void OnJoinedRoom(string roomName, string joinedUserId, string joinedUsername)
     {
-        Debug.Log(joinedUserId + " joined " + roomName);
-
         if (joinedUserId.Equals(userId))
         {
             room = roomName;
@@ -103,8 +124,12 @@ public class GameManager : NetworkManager
             UnityMainThreadDispatcher.Instance().Enqueue(delegate
             {
                 RoomManager.Instance().OnEnterRoom();
-                List<string> newClients = new List<string>();
-                newClients.Add(joinedUserId);
+                List<User> newClients = new List<User>();
+                newClients.Add(new User()
+                {
+                    userId = joinedUserId,
+                    username = joinedUsername
+                });
                 if (RoomManager.Exists()) RoomManager.Instance().AddClients(newClients);
             });
         }
@@ -112,8 +137,7 @@ public class GameManager : NetworkManager
 
     protected override void OnBatchTransform(List<BatchTransform> transformations)
     {
-        Debug.Log("OnBatchTransform: " + transformations.Count);
-        Debug.Log("RoomManager: " + RoomManager.Exists());
+        // Debug.Log("OnBatchTransform: " + transformations.Count);
         UnityMainThreadDispatcher.Instance().Enqueue(delegate
         {
             if (RoomManager.Exists()) RoomManager.Instance().HandleBatchTransformations(transformations);
