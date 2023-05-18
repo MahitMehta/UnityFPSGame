@@ -74,6 +74,12 @@ namespace WSMessage {
     }
 
     [System.Serializable]
+    public class BroadcastMethodCallBody
+    {
+        public string method; 
+    }
+
+    [System.Serializable]
     public class User
     {
         public string userId;
@@ -93,9 +99,12 @@ namespace WSMessage {
     }
 
     [System.Serializable]
-    public class IGeneralBody 
+    public class GeneralBody 
     {
-        // rooom body 
+        // broadcast method call body
+        public string method { get; set;  }
+
+        // room body 
         public string name { get; set; }
 
         // left room body 

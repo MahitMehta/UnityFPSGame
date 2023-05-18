@@ -48,7 +48,7 @@ public class NetworkManager : MonoBehaviour
         {
             var data = System.Text.Encoding.UTF8.GetString(bytes);
    
-            MessagesContainer<IGeneralBody> mc = JsonConvert.DeserializeObject<MessagesContainer<IGeneralBody>>(data);
+            MessagesContainer<GeneralBody> mc = JsonConvert.DeserializeObject<MessagesContainer<GeneralBody>>(data);
 
             foreach (var message in mc.messages)
             {
@@ -88,11 +88,17 @@ public class NetworkManager : MonoBehaviour
                         });
                     }
 
-                    Debug.Log("username" + message.body.value);
+                    Debug.Log("username: " + message.body.value);
          
                     if (message.body.property == "username") users[userId].username = message.body.value;
 
                     OnSetUserProperty(userId, message.body.property, message.body.value);
+                }
+                else if (message.type.Equals("broadcast_method_call"))
+                {
+                    string methodName = message.body.method;
+                    object[] parameters = new object[] { };
+                    typeof(GameManager).GetMethod(methodName).Invoke(GameManager.instance, parameters);
                 }
             }
         };
@@ -162,6 +168,18 @@ public class NetworkManager : MonoBehaviour
         };
 
         ws.SendText(JsonConvert.SerializeObject(mc));
+    }
+
+    public Message<BroadcastMethodCallBody> ContructBroadcastMethodCallMessage(string method)
+    {
+        BroadcastMethodCallBody body = new() { method = method };
+        Message<BroadcastMethodCallBody> msg = new()
+        {
+            type = "broadcast_method_call",
+            body = body
+        };
+
+        return msg;
     }
 
     public Message<BatchTransformationBody> ContructBatchTransformMessage(List<BatchTransform> bt)

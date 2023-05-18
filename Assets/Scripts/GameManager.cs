@@ -55,6 +55,10 @@ public class GameManager : NetworkManager
         }
     }
 
+    public void ChangeScene() {
+        Debug.Log("Change Scene");
+    }
+
     protected override void OnCreatedRoom(string name)
     {
         List<string> newRooms = new List<string>();

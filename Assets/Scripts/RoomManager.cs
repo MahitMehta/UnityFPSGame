@@ -11,7 +11,8 @@ public class RoomManager : MonoBehaviour
 {
     public TMPro.TMP_Dropdown clients;
     public TMPro.TMP_Text roomNameLabel;
-    public GameObject player; 
+    public GameObject player;
+    public Button startGame;
 
     private static RoomManager _instance;
     private float elapsedTime = 0;
@@ -35,7 +36,13 @@ public class RoomManager : MonoBehaviour
     {
         player.AddComponent<Rigidbody>();
         player.AddComponent<Player>();
-        player.GetComponent<Rigidbody>().freezeRotation = true; 
+        player.GetComponent<Rigidbody>().freezeRotation = true;
+
+        startGame.onClick.AddListener(delegate {
+            GameManager.instance.SendMessages(new List<Message>() {
+                    GameManager.instance.ContructBroadcastMethodCallMessage("ChangeScene")
+            });
+        });
     }
 
     public void OnLeftRoom(string userId)
