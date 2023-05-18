@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.UI;
+using WSMessage;
 
 public class RoomManager : MonoBehaviour
 {
@@ -11,7 +14,9 @@ public class RoomManager : MonoBehaviour
     public GameObject player; 
 
     private static RoomManager _instance;
-    private float elapsedTime = 0; 
+    private float elapsedTime = 0;
+
+    private Vector3 vel = new Vector3(0,0,0); 
 
     void Awake()
     {
@@ -29,6 +34,8 @@ public class RoomManager : MonoBehaviour
     private void Start()
     {
         player.AddComponent<Rigidbody>();
+        player.AddComponent<Player>();
+        player.GetComponent<Rigidbody>().freezeRotation = true; 
     }
 
     public void OnLeftRoom(string userId)
@@ -38,110 +45,114 @@ public class RoomManager : MonoBehaviour
 
     public void OnEnterRoom()
     {
-        NetworkManager.BatchTransform bt = new NetworkManager.BatchTransform()
+        BatchTransform bt = new BatchTransform()
         {
             go = player.name,
-            type = "position",
-            userId = GameManager.gm.userId,
-            vector = new List<float>() {
-                    player.transform.position.x,
-                    player.transform.position.y,
-                    player.transform.position.z
-                }
+            type = "transform",
+            userId = GameManager.instance.userId,
+            ts = GetNanoseconds(),
+            rotation = new List<float>() {
+                    player.transform.eulerAngles.x,
+                    player.transform.eulerAngles.y,
+                    player.transform.eulerAngles.z
+            },
+            position = new List<float>() {
+                player.transform.position.x,
+                player.transform.position.y,
+                player.transform.position.z
+            }
         };
 
-        List<NetworkManager.BatchTransform> bts = new() { bt };
-        GameManager.gm.BroadcastBatchTransform(bts);
+        List<BatchTransform> bts = new() { bt };
+        GameManager.instance.SendMessages(
+                new List<Message>() { GameManager.instance.ContructBatchTransformMessage(bts) });
+    }
+
+    public long GetNanoseconds()
+    {
+        double timestamp = Stopwatch.GetTimestamp();
+        double nanoseconds = 1_000_000_000.0 * timestamp / Stopwatch.Frequency;
+
+        return (long)nanoseconds;
     }
 
     public void Update()
     {
-        if (Input.GetKey(KeyCode.W))
+        player.GetComponent<Rigidbody>().velocity = new Vector3(vel.x, player.GetComponent<Rigidbody>().velocity.y, vel.z);
+
+        // Temporary | For Testing
+        if (Input.GetKeyDown(KeyCode.C))
         {
-            Vector3 change = new Vector3(0, 0, 1) * Time.deltaTime;
-            player.transform.position += change; 
+            GameManager.instance.SendMessages(new List<Message>() {
+                    GameManager.instance.ContructUserPropertyMessage("username", GameManager.instance.userId, "New Name"),
+             });
         }
 
-        if (Input.GetKey(KeyCode.A))
-        {
-            Vector3 change = new Vector3(-1, 0, 0) * Time.deltaTime;
-            player.transform.position += change;
-        }
-
-
-        if (Input.GetKey(KeyCode.D))
-        {
-            Vector3 change = new Vector3(1, 0, 0) * Time.deltaTime;
-            player.transform.position += change;
-        }
-
-        if (Input.GetKey(KeyCode.S))
-        {
-            Vector3 change = new Vector3(1, 0, -1) * Time.deltaTime;
-            player.transform.position += change;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            player.GetComponent<Rigidbody>().AddForce(Vector3.up * 5f, ForceMode.Impulse);
-        }
-
+        
         if (elapsedTime > 0.033f)
+
         {
-            NetworkManager.BatchTransform btPosition = new ()
+            BatchTransform btTransform = new ()
             {
                 go = player.name,
-                type = "position",
-                userId = GameManager.gm.userId,
-                vector = new List<float>() {
+                ts= GetNanoseconds(),
+                type = "transform",
+                userId = GameManager.instance.userId,
+                position = new List<float>() {
                     player.transform.position.x,
                     player.transform.position.y,
                     player.transform.position.z
-                }
-            };
-            NetworkManager.BatchTransform btRotation = new()
-            {
-                go = player.name,
-                type = "rotation",
-                userId = GameManager.gm.userId,
-                vector = new List<float>() {
+                },
+                rotation = new List<float>() {
                     player.transform.eulerAngles.x,
                     player.transform.eulerAngles.y,
                     player.transform.eulerAngles.z
                 }
             };
+           
 
 
-            List<NetworkManager.BatchTransform> bts = new() { btPosition, btRotation };
-            GameManager.gm.BroadcastBatchTransform(bts);
+            List<BatchTransform> bts = new() { btTransform };
+            GameManager.instance.SendMessages(
+                new List<Message>() { GameManager.instance.ContructBatchTransformMessage(bts) });
             elapsedTime = 0;
         }
 
         elapsedTime += Time.deltaTime;
     }
 
-    public void HandleBatchTransformations(List<NetworkManager.BatchTransform> transformations)
+    public void HandleBatchTransformations(List<BatchTransform> transformations)
     {
-        Debug.Log("Count: " + transformations.Count);
-        foreach (NetworkManager.BatchTransform bt in transformations) {
+        foreach (BatchTransform bt in transformations) {
             GameObject go; 
             if (GameObject.Find(bt.go + ":" + bt.userId) != null)
             {
                 go = GameObject.Find(bt.go + ":" + bt.userId);
             } else
             {
-                Debug.Log("Instantiate: " + bt.go);
                 go = Instantiate(Resources.Load(bt.go, typeof(GameObject))) as GameObject;
                 go.name = bt.go + ":" + bt.userId;
-
             }
 
-            if (bt.type == "position")
-            {   
-                go.transform.position = new Vector3(bt.vector[0], bt.vector[1], bt.vector[2]);
-            } else if (bt.type == "rotation")
+            if (bt.type == "transform")
             {
-                go.transform.rotation = Quaternion.Euler(bt.vector[0], bt.vector[1], bt.vector[2]);
+                if (go.GetComponent<Interpolator>() == null)
+                {
+                    go.AddComponent<Interpolator>();
+                    go.GetComponent<Interpolator>().lastPosition = new Vector3(bt.position[0], bt.position[1], bt.position[2]);
+                    go.GetComponent<Interpolator>().targetPosition = new Vector3(bt.position[0], bt.position[1], bt.position[2]);
+
+                    go.GetComponent<Interpolator>().lastRotation = Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]));
+                    go.GetComponent<Interpolator>().targetRotation = Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]));
+
+                    go.GetComponent<Interpolator>().previousTSPosition = bt.ts;
+                    go.GetComponent<Interpolator>().previousTSRotation = bt.ts;
+                }
+
+                go.GetComponent<Interpolator>().AddPosition(bt);
+                go.GetComponent<Interpolator>().AddRotation(bt);
+
+                // go.transform.rotation = Quaternion.Euler(bt.rotation[0], bt.rotation[1], bt.rotation[2]);
             }
         }
     }
@@ -170,20 +181,37 @@ public class RoomManager : MonoBehaviour
     {
         TMPro.TMP_Dropdown.OptionData filteredOptions = clients.options.Find((x) =>
         {
-            return x.text == disconnectedClientId || x.text == GameManager.gm.GetUser(disconnectedClientId)?.username;
+            return x.text == disconnectedClientId || x.text == GameManager.instance.GetUser(disconnectedClientId).username;
         });
         clients.options.Remove(filteredOptions);
         clients.RefreshShownValue();
     }
 
-    public void AddClients(List<string> newClients)
+    public void RefreshUsernames()
     {
         List<TMPro.TMP_Dropdown.OptionData> options = new();
 
-        foreach (string client in newClients)
+        foreach (string client in GameManager.instance.users.Keys)
         {
-            var user = GameManager.gm.GetUser(client);
+            var user = GameManager.instance.GetUser(client);
+            if (!user.isConnected) continue; 
             options.Add(new TMPro.TMP_Dropdown.OptionData(user != null ? user.username : client));
+        }
+
+        clients.options = options;
+
+        if (clients.value.Equals(-1)) clients.value = 0;
+        clients.RefreshShownValue();
+    }
+
+    public void AddClients(List<User> newClients)
+    {
+        List<TMPro.TMP_Dropdown.OptionData> options = new();
+
+        foreach (var client in newClients)
+        {
+            var user = GameManager.instance.GetUser(client.userId);
+            options.Add(new TMPro.TMP_Dropdown.OptionData(user != null ? user.username : client.userId));
         }
 
         clients.AddOptions(options);
