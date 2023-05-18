@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class RoomManager : MonoBehaviour
 {
     public TMPro.TMP_Dropdown clients;
     public TMPro.TMP_Text roomNameLabel;
+    public Button startGame;
     public GameObject player; 
 
     private static RoomManager _instance;
@@ -30,6 +32,13 @@ public class RoomManager : MonoBehaviour
     private void Start()
     {
         player.AddComponent<Rigidbody>();
+        if (SceneManager.GetActiveScene().name.Equals("RoomScene"))
+        {
+            startGame.onClick.AddListener(delegate
+            {
+                SceneManager.LoadScene("GameScene");
+            });
+        }
     }
 
     public void OnEnterRoom()
@@ -124,10 +133,7 @@ public class RoomManager : MonoBehaviour
             }
             go.GetComponent<Interpolator>().setTargetPos(new Vector3(bt.vector[0], bt.vector[1], bt.vector[2]));
 
-            /*if (!interpolatin)
-            {
-                interpolate = StartCoroutine(Interpolate(go, bt, DateTime.Now.Millisecond - lastBatch));
-            }*/
+
             //time between the batches
             Debug.Log(DateTime.Now.Millisecond - lastBatch);
 
