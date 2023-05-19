@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/RoomScene.unity
     guid: 4dfb58848856a49249be82c49ead5846
+  - enabled: 1
+    path: Assets/Scenes/GameScene.unity
+    guid: 12f893ea5de7f474aba55c8a4312a89c
   m_configObjects:
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: cf9c9c00dc8b44d8b9b66659f9a2449b, type: 2}
     xr.sdk.mock-hmd.settings: {fileID: 11400000, guid: 2c54acef850e94eed812c131d6dd9f39, type: 2}

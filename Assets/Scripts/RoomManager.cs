@@ -14,6 +14,7 @@ public class RoomManager : MonoBehaviour
     public GameObject player;
     public Button startGame;
 
+    public CursorLockMode cursorLockMode = CursorLockMode.Locked; 
 
     private static RoomManager _instance;
     private float elapsedTime = 0;
@@ -44,6 +45,8 @@ public class RoomManager : MonoBehaviour
                     GameManager.instance.ContructBroadcastMethodCallMessage("ChangeScene")
             });
         });
+
+        Cursor.lockState = cursorLockMode;
 
     }
 
@@ -95,6 +98,12 @@ public class RoomManager : MonoBehaviour
             GameManager.instance.SendMessages(new List<Message>() {
                     GameManager.instance.ContructUserPropertyMessage("username", GameManager.instance.userId, "New Name"),
              });
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (cursorLockMode == CursorLockMode.Locked) cursorLockMode = CursorLockMode.None;
+            else cursorLockMode = CursorLockMode.Locked;
         }
 
 

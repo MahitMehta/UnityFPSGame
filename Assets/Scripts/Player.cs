@@ -9,7 +9,12 @@ public class Player : MonoBehaviour
     public Camera camera;
     public Animator animator;
 
-    private float previousOffsetX = 0;  
+    public float viewRotationDeltaYSpeed = 6.5f;
+    public float viewRotationDeltaXSpeed = 2.5f;
+
+    public float viewRotationXMax = 22.0f;
+    public float viewRotationXMin = 0.0f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -20,15 +25,14 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3 mousePos = Input.mousePosition;
+        float viewRotationDeltaY = Input.GetAxis("Mouse X");
+        float viewRotationDeltaX = Input.GetAxis("Mouse Y");
 
-        float offsetX = mousePos.x - Screen.width / 2f;
-        float offsetY = mousePos.y - Screen.height / 2f;
- 
-        if (previousOffsetX != 0)
-            transform.Rotate(new Vector3(0, (offsetX - previousOffsetX) / 3f, 0));
-        previousOffsetX = offsetX;
-        //camera.transform.rotation = Quaternion.Euler(new Vector3(-angleY, camera.transform.rotation.y, camera.transform.rotation.z));
+        transform.Rotate(new Vector3(0, viewRotationDeltaY * viewRotationDeltaYSpeed, 0));
+
+        if (camera.transform.rotation.eulerAngles.x + viewRotationDeltaX * viewRotationDeltaXSpeed <= viewRotationXMax &&
+            camera.transform.rotation.eulerAngles.x + viewRotationDeltaX * viewRotationDeltaXSpeed >= viewRotationXMin)
+            camera.transform.Rotate(new Vector3(viewRotationDeltaX * viewRotationDeltaXSpeed, 0, 0));
 
         if (Input.GetKey(KeyCode.RightArrow))
         {
