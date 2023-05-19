@@ -3,19 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using WSMessage;
 
-public class RoomManager : MonoBehaviour
+public class MainGameManager : MonoBehaviour
 {
-    public TMPro.TMP_Dropdown clients;
-    public TMPro.TMP_Text roomNameLabel;
     public GameObject player;
-    public Button startGame;
 
-    public CursorLockMode cursorLockMode = CursorLockMode.Locked; 
+    public CursorLockMode cursorLockMode = CursorLockMode.Locked;
 
-    private static RoomManager _instance;
+    private static MainGameManager _instance;
     private float elapsedTime = 0;
 
     // top right bottom left 
@@ -41,13 +37,7 @@ public class RoomManager : MonoBehaviour
         player.AddComponent<Player>();
         player.GetComponent<Rigidbody>().freezeRotation = true;
 
-        startGame.onClick.AddListener(delegate {
-            GameManager.instance.SendMessages(new List<Message>() {
-                    GameManager.instance.ContructBroadcastMethodCallMessage("ChangeScene")
-            });
-        });
-
-        cursorLockMode = CursorLockMode.Confined;
+        cursorLockMode = CursorLockMode.Locked;
         Cursor.lockState = cursorLockMode;
 
     }
@@ -64,7 +54,7 @@ public class RoomManager : MonoBehaviour
             go = "GreenWizard",
             type = "transform",
             userId = GameManager.instance.userId,
-            scene = 1,
+            scene = 2,
             ts = GetNanoseconds(),
             rotation = new List<float>() {
                     player.transform.eulerAngles.x,
@@ -94,14 +84,6 @@ public class RoomManager : MonoBehaviour
 
     public void Update()
     {
-        // Temporary | For Testing | Still Some Unresolved Issues when updating user properties
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            GameManager.instance.SendMessages(new List<Message>() {
-                    GameManager.instance.ContructUserPropertyMessage("username", GameManager.instance.userId, "New Name"),
-             });
-        }
-
         if (Input.GetKeyDown(KeyCode.L))
         {
             if (cursorLockMode == CursorLockMode.Locked) cursorLockMode = CursorLockMode.None;
@@ -110,16 +92,14 @@ public class RoomManager : MonoBehaviour
             Cursor.lockState = cursorLockMode;
         }
 
-
         if (elapsedTime >= 0.033f)
-
         {
             BatchTransform btTransform = new()
             {
                 go = "GreenWizard",
                 ts = GetNanoseconds(),
                 type = "transform",
-                scene = 1,
+                scene = 2,
                 userId = GameManager.instance.userId,
                 position = new List<float>() {
                     player.transform.position.x,
@@ -133,8 +113,6 @@ public class RoomManager : MonoBehaviour
                 },
                 state = playerStateRT
             };
-
-
 
             List<BatchTransform> bts = new() { btTransform };
             GameManager.instance.SendMessages(
@@ -157,6 +135,7 @@ public class RoomManager : MonoBehaviour
             else
             {
                 go = Instantiate(Resources.Load(bt.go, typeof(GameObject))) as GameObject;
+                go.AddComponent<PlayerClone>();
                 go.name = bt.go + ":" + bt.userId;
             }
 
@@ -177,6 +156,7 @@ public class RoomManager : MonoBehaviour
 
                 go.GetComponent<Interpolator>().AddPosition(bt);
                 go.GetComponent<Interpolator>().AddRotation(bt);
+                go.GetComponent<PlayerClone>().playerState = bt.state;
             }
         }
     }
@@ -186,61 +166,12 @@ public class RoomManager : MonoBehaviour
         return _instance != null;
     }
 
-    public static RoomManager Instance()
+    public static MainGameManager Instance()
     {
         if (!Exists())
         {
-            throw new Exception("Room Manager Doesn't Exist");
+            throw new Exception("Main Game Manager Doesn't Exist");
         }
         return _instance;
-    }
-
-
-    public void SetRoomName(string roomName)
-    {
-        roomNameLabel.text = "Room: " + roomName;
-    }
-
-    public void RemoveClient(string disconnectedClientId)
-    {
-        TMPro.TMP_Dropdown.OptionData filteredOptions = clients.options.Find((x) =>
-        {
-            return x.text == disconnectedClientId || x.text == GameManager.instance.GetUser(disconnectedClientId).username;
-        });
-        clients.options.Remove(filteredOptions);
-        clients.RefreshShownValue();
-    }
-
-    public void RefreshUsernames()
-    {
-        List<TMPro.TMP_Dropdown.OptionData> options = new();
-
-        foreach (string client in GameManager.instance.users.Keys)
-        {
-            var user = GameManager.instance.GetUser(client);
-            if (!user.isConnected) continue;
-            options.Add(new TMPro.TMP_Dropdown.OptionData(user != null ? user.username : client));
-        }
-
-        clients.options = options;
-
-        if (clients.value.Equals(-1)) clients.value = 0;
-        clients.RefreshShownValue();
-    }
-
-    public void AddClients(List<User> newClients)
-    {
-        List<TMPro.TMP_Dropdown.OptionData> options = new();
-
-        foreach (var client in newClients)
-        {
-            var user = GameManager.instance.GetUser(client.userId);
-            options.Add(new TMPro.TMP_Dropdown.OptionData(user != null ? user.username : client.userId));
-        }
-
-        clients.AddOptions(options);
-
-        if (clients.value.Equals(-1)) clients.value = 0;
-        clients.RefreshShownValue();
     }
 }

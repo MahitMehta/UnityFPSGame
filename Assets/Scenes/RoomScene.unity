@@ -413,7 +413,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Button
+  m_text: Start Game
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -523,6 +523,7 @@ MonoBehaviour:
   roomNameLabel: {fileID: 530517711}
   player: {fileID: 1120642881}
   startGame: {fileID: 1117109723}
+  cursorLockMode: 1
 --- !u!4 &419519239
 Transform:
   m_ObjectHideFlags: 0
@@ -1384,7 +1385,7 @@ GameObject:
   - component: {fileID: 1117109724}
   - component: {fileID: 1117109723}
   m_Layer: 5
-  m_Name: DemoButton
+  m_Name: Start Game
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1398,7 +1399,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1117109721}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 91}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1408,7 +1409,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -220, y: -99}
+  m_AnchoredPosition: {x: 0, y: -150}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1117109723
@@ -2315,7 +2316,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2425229348093296571, guid: 52434e8aeef52401a95ca10f4459a0dc, type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2425229348093296571, guid: 52434e8aeef52401a95ca10f4459a0dc, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2359,7 +2360,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2425229348093296572, guid: 52434e8aeef52401a95ca10f4459a0dc, type: 3}
       propertyPath: m_Name
-      value: playerwizy
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 4895372704350100330, guid: 52434e8aeef52401a95ca10f4459a0dc, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 52434e8aeef52401a95ca10f4459a0dc, type: 3}
