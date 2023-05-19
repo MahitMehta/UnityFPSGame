@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -10,14 +11,16 @@ public class Player : MonoBehaviour
     public Animator animator;
 
     public float viewRotationDeltaYSpeed = 6.5f;
-    public float viewRotationDeltaXSpeed = 2.5f;
+    public float viewRotationDeltaXSpeed = -2.5f;
 
     public float viewRotationXMax = 22.0f;
     public float viewRotationXMin = 0.0f;
 
+    private string sceneName; 
     // Start is called before the first frame update
     void Start()
     {
+        sceneName = SceneManager.GetActiveScene().name;
         camera = gameObject.GetComponentInChildren<Camera>();
         animator = gameObject.GetComponentInChildren<Animator>();
     }
@@ -30,7 +33,7 @@ public class Player : MonoBehaviour
 
         transform.Rotate(new Vector3(0, viewRotationDeltaY * viewRotationDeltaYSpeed, 0));
 
-        if (camera.transform.rotation.eulerAngles.x + viewRotationDeltaX * viewRotationDeltaXSpeed <= viewRotationXMax &&
+        if (Cursor.lockState != CursorLockMode.None && camera.transform.rotation.eulerAngles.x + viewRotationDeltaX * viewRotationDeltaXSpeed <= viewRotationXMax &&
             camera.transform.rotation.eulerAngles.x + viewRotationDeltaX * viewRotationDeltaXSpeed >= viewRotationXMin)
             camera.transform.Rotate(new Vector3(viewRotationDeltaX * viewRotationDeltaXSpeed, 0, 0));
 
@@ -46,34 +49,67 @@ public class Player : MonoBehaviour
         {
             Vector3 change = transform.forward * positionSpeed * Time.deltaTime;
             transform.position += change;
+            if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[0] = 1;
+            else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[0] = 1;
             animator.SetBool("walkFwd", true);
         }
-        else animator.SetBool("walkFwd", false);
+        else
+        {
+            if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[0] = 0;
+            else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[0] = 0;
+            animator.SetBool("walkFwd", false);
+        }
+
 
         if (Input.GetKey(KeyCode.A))
         {
             Vector3 change = -transform.right * positionSpeed * Time.deltaTime;
             transform.position += change;
+
+            if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[3] = 1;
+            else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[3] = 1;
             animator.SetBool("walkLeft", true);
         }
-        else animator.SetBool("walkLeft", false);
+        else
+        {
+            if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[3] = 0;
+            else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[3] = 0;
+            animator.SetBool("walkLeft", false);
+        }
 
 
         if (Input.GetKey(KeyCode.D))
         {
-            Vector3 change = transform.right * positionSpeed  * Time.deltaTime;
+            Vector3 change = transform.right * positionSpeed * Time.deltaTime;
             transform.position += change;
+
+            if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[1] = 1;
+            else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[1] = 1;
             animator.SetBool("walkRight", true);
+
         }
-        else animator.SetBool("walkRight", false);
+        else
+        {
+            if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[1] = 0;
+            else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[1] = 0;
+            animator.SetBool("walkRight", false);
+        }
 
         if (Input.GetKey(KeyCode.S))
         {
             Vector3 change = -transform.forward * positionSpeed * Time.deltaTime;
             transform.position += change;
+
+            if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[2] = 1;
+            else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[2] = 1;
             animator.SetBool("walkBack", true);
         }
-        else animator.SetBool("walkBack", false);
+        else
+        {
+            if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[2] = 0;
+            else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[2] = 0;
+            animator.SetBool("walkBack", false);
+        }
 
         if (Input.GetKeyDown(KeyCode.Space))
         {

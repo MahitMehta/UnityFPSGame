@@ -62,9 +62,11 @@ namespace WSMessage {
         public string type; // transform
         public string go; // gameobject name
         public long ts;
+        public int scene; // Scene Number
         public string userId;
         public List<float> position; // type = transform
-        public List<float> rotation; // type = transform 
+        public List<float> rotation; // type = transform
+        public List<int> state;
     }
 
     [System.Serializable]

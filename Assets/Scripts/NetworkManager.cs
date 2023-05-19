@@ -10,8 +10,8 @@ public class NetworkManager : MonoBehaviour
 {
     public bool useProduction = false; 
 
-    private readonly static string MAHITM_UNITY_WSS_SERVER_ADDRESS = "wss://unity.mahitm.com/unity";
-    private readonly static string MAHITM_UNITY_HTTPS_SERVER_ADDRESS = "https://unity.mahitm.com/unity";
+    private readonly static string MAHITM_UNITY_WSS_SERVER_ADDRESS = "wss://walrus-app-yazre.ondigitalocean.app/unity";
+    private readonly static string MAHITM_UNITY_HTTPS_SERVER_ADDRESS = "https://walrus-app-yazre.ondigitalocean.app/unity";
     private readonly static string MAHITM_UNITY_WS_SERVER_ADDRESS = "ws://localhost:3000/unity";
     private readonly static string MAHITM_UNITY_HTTP_SERVER_ADDRESS = "http://localhost:3000/unity";
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,10 +28,19 @@ public class GameManager : NetworkManager
         else Destroy(gameObject);
     }
 
+    // 15 characters
+    public string UserID_GuidBase64Shortened() => Convert.ToBase64String(Guid.NewGuid().ToByteArray())
+                                                 .Replace("/", "_")
+                                                 .Replace("+", "-")
+                                                 .Substring(0, 15);
+    // base 64 encoded guid without == | 22 characters 
+    private string UserID_Base64GUID() => Convert.ToBase64String(Guid.NewGuid().ToByteArray())
+                                          .Substring(0, 22);
+   
     protected override void Start()
     {
         base.Start();
-        userId = System.Guid.NewGuid().ToString();
+        userId = UserID_GuidBase64Shortened();
 
         StartCoroutine(GetAllRooms());
         ConnectToWebSocket(userId);
@@ -142,10 +152,19 @@ public class GameManager : NetworkManager
 
     protected override void OnBatchTransform(List<BatchTransform> transformations)
     {
-        // Debug.Log("OnBatchTransform: " + transformations.Count);
         UnityMainThreadDispatcher.Instance().Enqueue(delegate
         {
-            if (RoomManager.Exists()) RoomManager.Instance().HandleBatchTransformations(transformations);
+            List<BatchTransform> roomTransformations = new();
+            List<BatchTransform> gameTransformations = new();
+
+            foreach (var t in transformations)
+            {
+                if (t.scene == 1) roomTransformations.Add(t);
+                else if (t.scene == 2) gameTransformations.Add(t);
+            }
+
+            if (MainGameManager.Exists()) MainGameManager.Instance().HandleBatchTransformations(gameTransformations);
+            if (RoomManager.Exists()) RoomManager.Instance().HandleBatchTransformations(roomTransformations);
         });
     }
 
