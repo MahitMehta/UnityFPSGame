@@ -57,6 +57,7 @@ public class GameManager : NetworkManager
 
     public void ChangeScene() {
         Debug.Log("Change Scene");
+        SceneManager.LoadScene("GameScene");
     }
 
     protected override void OnCreatedRoom(string name)

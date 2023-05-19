@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 using WSMessage;
+using Debug = UnityEngine.Debug;
 
 public class Interpolator : MonoBehaviour
 {
     public Vector3 targetPosition, lastPosition;
     public Quaternion targetRotation, lastRotation;
 
-    public float interpolationRatioPosition = 0;
-    public float deltaTimePosition = 1f;
+    private float interpolationRatioPosition = 0;
+    private float deltaTimePosition = 1f;
 
-    public float interpolationRatioRotation = 0;
-    public float deltaTimeRotation = 1f;
+    private float interpolationRatioRotation = 0;
+    private float deltaTimeRotation = 1f;
 
     public float previousTSPosition = -1;
     public float previousTSRotation = -1;
@@ -39,7 +40,8 @@ public class Interpolator : MonoBehaviour
 
             deltaTimePosition = (bt.ts - previousTSPosition) / 1_000_000_000.0f; 
             previousTSPosition = bt.ts; 
-        }
+        } 
+
 
         if (Quaternion.Angle(transform.rotation, targetRotation) < 0.0001f && rotationUpdates.Count > 0)
         {
@@ -57,7 +59,7 @@ public class Interpolator : MonoBehaviour
         transform.position = Vector3.Lerp(lastPosition, targetPosition, interpolationRatioPosition);
 
         interpolationRatioRotation += Time.deltaTime / (deltaTimeRotation != 0 ? deltaTimeRotation : Time.deltaTime);
-        transform.rotation = Quaternion.Lerp(lastRotation, targetRotation, interpolationRatioPosition);
+        transform.rotation = Quaternion.Lerp(lastRotation, targetRotation, interpolationRatioRotation);
     }
 
     public void AddPosition(BatchTransform bt)
