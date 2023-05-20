@@ -2831,7 +2831,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cde33fe07b4764594ae15cfb16b3b1bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useProduction: 0
+  useProduction: 1
   createRoom: {fileID: 556220393}
   joinRoom: {fileID: 876424810}
   usernameField: {fileID: 1133577805}
