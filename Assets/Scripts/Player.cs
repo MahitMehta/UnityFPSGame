@@ -115,5 +115,6 @@ public class Player : MonoBehaviour
         {
             GetComponent<Rigidbody>().AddForce(Vector3.up * 5f, ForceMode.Impulse);
         }
+        // Debug.Log(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle01"));
     }
 }
