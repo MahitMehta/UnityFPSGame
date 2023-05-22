@@ -18,6 +18,7 @@ public class NetworkManager : MonoBehaviour
     private string WEBSOCKET_ADDRESS;
     private string HTTP_ADDRESS;
 
+    public int ticks = 0; 
  
     protected WebSocket ws;
     public Dictionary<string, User> users = new ();
@@ -31,6 +32,11 @@ public class NetworkManager : MonoBehaviour
     void OnApplicationQuit()
     {
         ws.Close();
+    }
+
+    public void FixedUpdate()
+    {
+        ticks++;
     }
 
     public User GetUser(string userId)
@@ -55,6 +61,8 @@ public class NetworkManager : MonoBehaviour
                 if (message.type.Equals("created_room"))
                 {
                     OnCreatedRoom(message.body.name);
+                } else if (message.type.Equals("sync_tick")) {
+                    Debug.Log("sync tick");
                 }
                 else if (message.type.Equals("joined_room"))
                 {

@@ -49,8 +49,8 @@ public class GameManager : NetworkManager
         {
             createRoom.onClick.AddListener(delegate {
                 SendMessages(new List<Message>() {
-                    ContructUserPropertyMessage("username", userId, usernameField.text),
                     ContructCreateRoomMessage(newRoomField.text),
+                    ContructUserPropertyMessage("username", userId, usernameField.text),
                 });
             });
 
@@ -58,8 +58,8 @@ public class GameManager : NetworkManager
                 string selectedRoom = roomOptions.options[roomOptions.value].text;
   
                 SendMessages(new List<Message>() {
-                    ContructUserPropertyMessage("username", userId, usernameField.text),
                     ContructJoinRoomMessage(selectedRoom),
+                    ContructUserPropertyMessage("username", userId, usernameField.text),
                 });
             });
         }

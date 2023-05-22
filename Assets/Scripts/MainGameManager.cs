@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using WSMessage;
 
@@ -13,10 +14,10 @@ public class MainGameManager : MonoBehaviour
 
     private static MainGameManager _instance;
     private float elapsedTime = 0;
+    public GameObject ammo;
 
     // top right bottom left 
     public List<int> playerStateRT = new() { 0, 0, 0, 0 }; // realtime
-    public List<int> playerStateBT = new() { 0, 0, 0, 0 }; // batch transform
 
     void Awake()
     {
@@ -34,7 +35,7 @@ public class MainGameManager : MonoBehaviour
     private void Start()
     {
         player.AddComponent<Rigidbody>();
-        player.AddComponent<Player>();
+        player.AddComponent<Player>().ammo = ammo;
         player.GetComponent<Rigidbody>().freezeRotation = true;
 
         cursorLockMode = CursorLockMode.Locked;
@@ -92,7 +93,7 @@ public class MainGameManager : MonoBehaviour
             Cursor.lockState = cursorLockMode;
         }
 
-        if (elapsedTime >= 0.033f)
+        if (elapsedTime >= 0.025f)
         {
             BatchTransform btTransform = new()
             {

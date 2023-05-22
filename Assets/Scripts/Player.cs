@@ -16,6 +16,8 @@ public class Player : MonoBehaviour
     public float viewRotationXMax = 22.0f;
     public float viewRotationXMin = 0.0f;
 
+    public GameObject ammo;
+
     private string sceneName; 
     // Start is called before the first frame update
     void Start()
@@ -111,9 +113,15 @@ public class Player : MonoBehaviour
             animator.SetBool("walkBack", false);
         }
 
+        if (Input.GetMouseButton(0))
+        {
+            Instantiate(ammo, transform.position + transform.forward, transform.rotation).AddComponent<BallMove>().source = gameObject;
+        }
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             GetComponent<Rigidbody>().AddForce(Vector3.up * 5f, ForceMode.Impulse);
         }
+        // Debug.Log(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle01"));
     }
 }
