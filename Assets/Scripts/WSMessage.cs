@@ -109,6 +109,9 @@ namespace WSMessage {
         // room body 
         public string name { get; set; }
 
+        // ticks
+        public string ticks { get; set; }
+
         // left room body 
         public string userId { get; set; }
 

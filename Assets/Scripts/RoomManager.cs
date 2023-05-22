@@ -20,7 +20,6 @@ public class RoomManager : MonoBehaviour
 
     // top right bottom left 
     public List<int> playerStateRT = new() { 0, 0, 0, 0 }; // realtime
-    public List<int> playerStateBT = new() { 0, 0, 0, 0 }; // batch transform
 
     void Awake()
     {
@@ -111,7 +110,7 @@ public class RoomManager : MonoBehaviour
         }
 
 
-        if (elapsedTime >= 0.033f)
+        if (elapsedTime >= 0.025f)
 
         {
             BatchTransform btTransform = new()

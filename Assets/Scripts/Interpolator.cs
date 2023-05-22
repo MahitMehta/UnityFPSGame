@@ -11,10 +11,10 @@ public class Interpolator : MonoBehaviour
     public Quaternion targetRotation, lastRotation;
 
     private float interpolationRatioPosition = 0;
-    private float deltaTimePosition = 1f;
+    private float deltaTimePosition = 0f;
 
     private float interpolationRatioRotation = 0;
-    private float deltaTimeRotation = 1f;
+    private float deltaTimeRotation = 0f;
 
     public float previousTSPosition = -1;
     public float previousTSRotation = -1;
@@ -30,35 +30,49 @@ public class Interpolator : MonoBehaviour
 
     void Update()
     {
-        if (Vector3.Distance(transform.position, targetPosition) < 0.0001f && positionUpdates.Count > 0)
+        if ((Vector3.Distance(transform.position, targetPosition) < 0.0001f || interpolationRatioPosition >= 1) && positionUpdates.Count > 0)
         {
-            interpolationRatioPosition %= 1; 
+            interpolationRatioPosition %= 1;
+
             BatchTransform bt = positionUpdates.Dequeue();
 
-            lastPosition = targetPosition;
+            lastPosition = transform.position;
             targetPosition = new Vector3(bt.position[0], bt.position[1], bt.position[2]);
 
-            deltaTimePosition = (bt.ts - previousTSPosition) / 1_000_000_000.0f; 
+            var deltaTimePositionPrev = deltaTimePosition;
+            deltaTimePosition = (bt.ts - previousTSPosition) / 1_000_000_000.0f;
+          
+            // Not sure if this beneficial 
+            if (deltaTimePosition != 0) interpolationRatioPosition = interpolationRatioPosition * deltaTimePositionPrev / deltaTimePosition; 
             previousTSPosition = bt.ts; 
         } 
 
 
-        if (Quaternion.Angle(transform.rotation, targetRotation) < 0.0001f && rotationUpdates.Count > 0)
+        if ((Quaternion.Angle(transform.rotation, targetRotation) < 0.0001f || interpolationRatioRotation >= 1) && rotationUpdates.Count > 0)
         {
             interpolationRatioRotation %= 1;
             BatchTransform bt = rotationUpdates.Dequeue();
 
-            lastRotation = targetRotation;
+            lastRotation = transform.rotation;
             targetRotation = Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]));
 
-            deltaTimeRotation = (bt.ts - previousTSRotation) / 1_000_000_000.0f; 
+            deltaTimeRotation = (bt.ts - previousTSRotation) / 1_000_000_000.0f;
             previousTSRotation = bt.ts;
         }
 
-        interpolationRatioPosition += Time.deltaTime / (deltaTimePosition != 0 ? deltaTimePosition : Time.deltaTime); 
-        transform.position = Vector3.Lerp(lastPosition, targetPosition, interpolationRatioPosition);
+        interpolationRatioPosition += Time.deltaTime / (deltaTimePosition != 0 ? deltaTimePosition : Time.deltaTime);
+
+        if ((lastPosition - targetPosition).sqrMagnitude < 0.0001f || positionUpdates.Count > 0) {
+            transform.position = Vector3.Lerp(lastPosition, targetPosition, interpolationRatioPosition);
+        } else
+        {
+            transform.position = Vector3.LerpUnclamped(lastPosition, targetPosition, interpolationRatioPosition);
+        }
+
+
 
         interpolationRatioRotation += Time.deltaTime / (deltaTimeRotation != 0 ? deltaTimeRotation : Time.deltaTime);
+
         transform.rotation = Quaternion.Lerp(lastRotation, targetRotation, interpolationRatioRotation);
     }
 
