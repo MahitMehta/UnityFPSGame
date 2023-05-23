@@ -36,7 +36,9 @@ public class Interpolator : MonoBehaviour
 
             BatchTransform bt = positionUpdates.Dequeue();
 
-            lastPosition = transform.position;
+            lastPosition = transform.position; // this causes more delay, more smoothness
+            //lastPosition = targetPosition; //  this causes less delay, less smoothness
+
             targetPosition = new Vector3(bt.position[0], bt.position[1], bt.position[2]);
 
             var deltaTimePositionPrev = deltaTimePosition;
@@ -61,18 +63,9 @@ public class Interpolator : MonoBehaviour
         }
 
         interpolationRatioPosition += Time.deltaTime / (deltaTimePosition != 0 ? deltaTimePosition : Time.deltaTime);
-
-        if ((lastPosition - targetPosition).sqrMagnitude < 0.0001f || positionUpdates.Count > 0) {
-            transform.position = Vector3.Lerp(lastPosition, targetPosition, interpolationRatioPosition);
-        } else
-        {
-            transform.position = Vector3.LerpUnclamped(lastPosition, targetPosition, interpolationRatioPosition);
-        }
-
-
+        transform.position = Vector3.Lerp(lastPosition, targetPosition, interpolationRatioPosition);
 
         interpolationRatioRotation += Time.deltaTime / (deltaTimeRotation != 0 ? deltaTimeRotation : Time.deltaTime);
-
         transform.rotation = Quaternion.Lerp(lastRotation, targetRotation, interpolationRatioRotation);
     }
 

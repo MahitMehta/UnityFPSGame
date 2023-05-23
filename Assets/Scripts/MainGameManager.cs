@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.SceneManagement;
 using WSMessage;
 
 public class MainGameManager : MonoBehaviour
@@ -13,7 +11,6 @@ public class MainGameManager : MonoBehaviour
     public CursorLockMode cursorLockMode = CursorLockMode.Locked;
 
     private static MainGameManager _instance;
-    private float elapsedTime = 0;
     public GameObject ammo;
 
     // top right bottom left 
@@ -41,6 +38,7 @@ public class MainGameManager : MonoBehaviour
         cursorLockMode = CursorLockMode.Locked;
         Cursor.lockState = cursorLockMode;
 
+        GameManager.Instance().AddBTUpdate("player:game", PlayerBatchTranform);
     }
 
     public void OnLeftRoom(string userId)
@@ -48,39 +46,38 @@ public class MainGameManager : MonoBehaviour
 
     }
 
-    public void OnEnterRoom()
-    {
-        BatchTransform bt = new BatchTransform()
-        {
-            go = "GreenWizard",
-            type = "transform",
-            userId = GameManager.instance.userId,
-            scene = 2,
-            ts = GetNanoseconds(),
-            rotation = new List<float>() {
-                    player.transform.eulerAngles.x,
-                    player.transform.eulerAngles.y,
-                    player.transform.eulerAngles.z
-            },
-            position = new List<float>() {
-                player.transform.position.x,
-                player.transform.position.y,
-                player.transform.position.z
-            },
-            state = playerStateRT
-        };
-
-        List<BatchTransform> bts = new() { bt };
-        GameManager.instance.SendMessages(
-                new List<Message>() { GameManager.instance.ContructBatchTransformMessage(bts) });
-    }
-
     public long GetNanoseconds()
     {
         double timestamp = Stopwatch.GetTimestamp();
         double nanoseconds = 1_000_000_000.0 * timestamp / Stopwatch.Frequency;
 
-        return (long)nanoseconds;
+        return (long) nanoseconds;
+    }
+
+    [Update(TickRate = 1, Subscribe = true)]
+    private void PlayerBatchTranform()
+    {
+        BatchTransform bt = new()
+        {
+            go = player.name,
+            pf = "GreenWizard",
+            ts = GetNanoseconds(),
+            type = BTType.Transform,
+            scene = 2,
+            userId = GameManager.Instance().userId,
+            position = new List<float>() {
+                    player.transform.position.x,
+                    player.transform.position.y,
+                    player.transform.position.z
+            },
+            rotation = new List<float>() {
+                    player.transform.eulerAngles.x,
+                    player.transform.eulerAngles.y,
+                    player.transform.eulerAngles.z
+                },
+            state = playerStateRT
+        };
+        GameManager.Instance().batchTransforms.Add(bt);
     }
 
     public void Update()
@@ -92,56 +89,28 @@ public class MainGameManager : MonoBehaviour
 
             Cursor.lockState = cursorLockMode;
         }
-
-        if (elapsedTime >= 0.025f)
-        {
-            BatchTransform btTransform = new()
-            {
-                go = "GreenWizard",
-                ts = GetNanoseconds(),
-                type = "transform",
-                scene = 2,
-                userId = GameManager.instance.userId,
-                position = new List<float>() {
-                    player.transform.position.x,
-                    player.transform.position.y,
-                    player.transform.position.z
-                },
-                rotation = new List<float>() {
-                    player.transform.eulerAngles.x,
-                    player.transform.eulerAngles.y,
-                    player.transform.eulerAngles.z
-                },
-                state = playerStateRT
-            };
-
-            List<BatchTransform> bts = new() { btTransform };
-            GameManager.instance.SendMessages(
-                new List<Message>() { GameManager.instance.ContructBatchTransformMessage(bts) });
-            elapsedTime = 0;
-        }
-
-        elapsedTime += Time.deltaTime;
     }
 
     public void HandleBatchTransformations(List<BatchTransform> transformations)
     {
         foreach (BatchTransform bt in transformations)
         {
-            GameObject go;
-            if (GameObject.Find(bt.go + ":" + bt.userId) != null)
+            GameObject go = null;
+            
+            if (bt.type != BTType.Instantiate) go = GameObject.Find(bt.go + ":" + bt.userId);
+            if (go == null)
             {
-                go = GameObject.Find(bt.go + ":" + bt.userId);
-            }
-            else
-            {
-                go = Instantiate(Resources.Load(bt.go, typeof(GameObject))) as GameObject;
-                go.AddComponent<PlayerClone>();
+                go = Instantiate(
+                    Resources.Load(bt.pf, typeof(GameObject)),
+                    new Vector3(bt.position[0], bt.position[1], bt.position[2]),
+                    Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]))
+                ) as GameObject;
                 go.name = bt.go + ":" + bt.userId;
             }
 
-            if (bt.type == "transform")
+            if (bt.pf == "GreenWizard" && bt.type == BTType.Transform)
             {
+                go.AddComponent<PlayerClone>();
                 if (go.GetComponent<Interpolator>() == null)
                 {
                     go.AddComponent<Interpolator>();
@@ -158,6 +127,10 @@ public class MainGameManager : MonoBehaviour
                 go.GetComponent<Interpolator>().AddPosition(bt);
                 go.GetComponent<Interpolator>().AddRotation(bt);
                 go.GetComponent<PlayerClone>().playerState = bt.state;
+            } else if (bt.pf == "Fireball" && bt.type == BTType.Instantiate)
+            {
+                go.AddComponent<BallMove>().isClone = true; 
+                go.GetComponent<BallMove>().source = GameObject.Find(player.name + ":" + bt.userId);
             }
         }
     }

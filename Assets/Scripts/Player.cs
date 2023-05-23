@@ -113,7 +113,7 @@ public class Player : MonoBehaviour
             animator.SetBool("walkBack", false);
         }
 
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButtonDown(1) && sceneName == "GameScene")
         {
             Instantiate(ammo, transform.position + transform.forward, transform.rotation).AddComponent<BallMove>().source = gameObject;
         }
@@ -122,6 +122,5 @@ public class Player : MonoBehaviour
         {
             GetComponent<Rigidbody>().AddForce(Vector3.up * 5f, ForceMode.Impulse);
         }
-        // Debug.Log(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle01"));
     }
 }

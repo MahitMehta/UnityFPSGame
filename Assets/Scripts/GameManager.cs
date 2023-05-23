@@ -8,7 +8,7 @@ using WSMessage;
 
 public class GameManager : NetworkManager
 {
-    public static GameManager instance;
+    private static GameManager _instance;
 
     public Button createRoom;
     public Button joinRoom;
@@ -24,7 +24,7 @@ public class GameManager : NetworkManager
     {
         DontDestroyOnLoad(this);
 
-        if (instance == null) instance = this;
+        if (_instance == null) _instance = this;
         else Destroy(gameObject);
     }
 
@@ -33,9 +33,6 @@ public class GameManager : NetworkManager
                                                  .Replace("/", "_")
                                                  .Replace("+", "-")
                                                  .Substring(0, 15);
-    // base 64 encoded guid without == | 22 characters 
-    private string UserID_Base64GUID() => Convert.ToBase64String(Guid.NewGuid().ToByteArray())
-                                          .Substring(0, 22);
    
     protected override void Start()
     {
@@ -67,6 +64,7 @@ public class GameManager : NetworkManager
 
     public void ChangeScene() {
         Debug.Log("Change Scene");
+        RemoveBTUpdate("player:room");
         SceneManager.LoadScene("GameScene");
     }
 
@@ -174,5 +172,19 @@ public class GameManager : NetworkManager
         {
             if (RoomManager.Exists()) RoomManager.Instance().RemoveClient(disconnectedUserId);
         });
+    }
+
+    public static bool Exists()
+    {
+        return _instance != null;
+    }
+
+    public static GameManager Instance()
+    {
+        if (!Exists())
+        {
+            throw new Exception("Game Manager Doesn't Exist");
+        }
+        return _instance;
     }
 }

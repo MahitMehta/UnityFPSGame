@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using WSMessage;
+using Debug = UnityEngine.Debug;
 
 public class RoomManager : MonoBehaviour
 {
@@ -14,10 +13,9 @@ public class RoomManager : MonoBehaviour
     public GameObject player;
     public Button startGame;
 
-    public CursorLockMode cursorLockMode = CursorLockMode.Locked; 
+    public CursorLockMode cursorLockMode = CursorLockMode.Locked;
 
     private static RoomManager _instance;
-    private float elapsedTime = 0;
 
     // top right bottom left 
     public List<int> playerStateRT = new() { 0, 0, 0, 0 }; // realtime
@@ -42,13 +40,15 @@ public class RoomManager : MonoBehaviour
         player.GetComponent<Rigidbody>().freezeRotation = true;
 
         startGame.onClick.AddListener(delegate {
-            GameManager.instance.SendMessages(new List<Message>() {
-                    GameManager.instance.ContructBroadcastMethodCallMessage("ChangeScene")
+            GameManager.Instance().SendMessages(new List<Message>() {
+                    GameManager.Instance().ContructBroadcastMethodCallMessage("ChangeScene")
             });
         });
 
         cursorLockMode = CursorLockMode.Confined;
         Cursor.lockState = cursorLockMode;
+
+        GameManager.Instance().AddBTUpdate("player:room", PlayerBatchTranform);
 
     }
 
@@ -59,29 +59,8 @@ public class RoomManager : MonoBehaviour
 
     public void OnEnterRoom()
     {
-        BatchTransform bt = new BatchTransform()
-        {
-            go = "GreenWizard",
-            type = "transform",
-            userId = GameManager.instance.userId,
-            scene = 1,
-            ts = GetNanoseconds(),
-            rotation = new List<float>() {
-                    player.transform.eulerAngles.x,
-                    player.transform.eulerAngles.y,
-                    player.transform.eulerAngles.z
-            },
-            position = new List<float>() {
-                player.transform.position.x,
-                player.transform.position.y,
-                player.transform.position.z
-            },
-            state = playerStateRT
-        };
-
-        List<BatchTransform> bts = new() { bt };
-        GameManager.instance.SendMessages(
-                new List<Message>() { GameManager.instance.ContructBatchTransformMessage(bts) });
+    
+ 
     }
 
     public long GetNanoseconds()
@@ -92,16 +71,34 @@ public class RoomManager : MonoBehaviour
         return (long)nanoseconds;
     }
 
+    [Update(TickRate = 1, Subscribe = true)]
+    private void PlayerBatchTranform() {
+        BatchTransform bt = new()
+        {
+            go = player.name,
+            pf = "GreenWizard",
+            ts = GetNanoseconds(),
+            type = BTType.Transform,
+            scene = 1,
+            userId = GameManager.Instance().userId,
+            position = new List<float>() {
+                    player.transform.position.x,
+                    player.transform.position.y,
+                    player.transform.position.z
+            },
+            rotation = new List<float>() {
+                    player.transform.eulerAngles.x,
+                    player.transform.eulerAngles.y,
+                    player.transform.eulerAngles.z
+                },
+            state = playerStateRT
+        };
+        GameManager.Instance().batchTransforms.Add(bt);
+    }
+
+
     public void Update()
     {
-        // Temporary | For Testing | Still Some Unresolved Issues when updating user properties
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            GameManager.instance.SendMessages(new List<Message>() {
-                    GameManager.instance.ContructUserPropertyMessage("username", GameManager.instance.userId, "New Name"),
-             });
-        }
-
         if (Input.GetKeyDown(KeyCode.L))
         {
             if (cursorLockMode == CursorLockMode.Locked) cursorLockMode = CursorLockMode.None;
@@ -109,59 +106,28 @@ public class RoomManager : MonoBehaviour
 
             Cursor.lockState = cursorLockMode;
         }
-
-
-        if (elapsedTime >= 0.025f)
-
-        {
-            BatchTransform btTransform = new()
-            {
-                go = "GreenWizard",
-                ts = GetNanoseconds(),
-                type = "transform",
-                scene = 1,
-                userId = GameManager.instance.userId,
-                position = new List<float>() {
-                    player.transform.position.x,
-                    player.transform.position.y,
-                    player.transform.position.z
-                },
-                rotation = new List<float>() {
-                    player.transform.eulerAngles.x,
-                    player.transform.eulerAngles.y,
-                    player.transform.eulerAngles.z
-                },
-                state = playerStateRT
-            };
-
-
-
-            List<BatchTransform> bts = new() { btTransform };
-            GameManager.instance.SendMessages(
-                new List<Message>() { GameManager.instance.ContructBatchTransformMessage(bts) });
-            elapsedTime = 0;
-        }
-
-        elapsedTime += Time.deltaTime;
     }
 
     public void HandleBatchTransformations(List<BatchTransform> transformations)
     {
         foreach (BatchTransform bt in transformations)
         {
-            GameObject go;
-            if (GameObject.Find(bt.go + ":" + bt.userId) != null)
+            GameObject go = null;
+
+            if (bt.type != BTType.Instantiate) go = GameObject.Find(bt.go + ":" + bt.userId);
+            if (go == null)
             {
-                go = GameObject.Find(bt.go + ":" + bt.userId);
-            }
-            else
-            {
-                go = Instantiate(Resources.Load(bt.go, typeof(GameObject))) as GameObject;
+                go = Instantiate(
+                    Resources.Load(bt.pf, typeof(GameObject)),
+                    new Vector3(bt.position[0], bt.position[1], bt.position[2]),
+                    Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]))
+                ) as GameObject;
                 go.name = bt.go + ":" + bt.userId;
             }
 
-            if (bt.type == "transform")
+            if (bt.pf == "GreenWizard" && bt.type == BTType.Transform)
             {
+                go.AddComponent<PlayerClone>();
                 if (go.GetComponent<Interpolator>() == null)
                 {
                     go.AddComponent<Interpolator>();
@@ -177,7 +143,8 @@ public class RoomManager : MonoBehaviour
 
                 go.GetComponent<Interpolator>().AddPosition(bt);
                 go.GetComponent<Interpolator>().AddRotation(bt);
-            }
+                go.GetComponent<PlayerClone>().playerState = bt.state;
+            } 
         }
     }
 
@@ -205,7 +172,7 @@ public class RoomManager : MonoBehaviour
     {
         TMPro.TMP_Dropdown.OptionData filteredOptions = clients.options.Find((x) =>
         {
-            return x.text == disconnectedClientId || x.text == GameManager.instance.GetUser(disconnectedClientId).username;
+            return x.text == disconnectedClientId || x.text == GameManager.Instance().GetUser(disconnectedClientId).username;
         });
         clients.options.Remove(filteredOptions);
         clients.RefreshShownValue();
@@ -215,9 +182,9 @@ public class RoomManager : MonoBehaviour
     {
         List<TMPro.TMP_Dropdown.OptionData> options = new();
 
-        foreach (string client in GameManager.instance.users.Keys)
+        foreach (string client in GameManager.Instance().users.Keys)
         {
-            var user = GameManager.instance.GetUser(client);
+            var user = GameManager.Instance().GetUser(client);
             if (!user.isConnected) continue;
             options.Add(new TMPro.TMP_Dropdown.OptionData(user != null ? user.username : client));
         }
@@ -234,7 +201,7 @@ public class RoomManager : MonoBehaviour
 
         foreach (var client in newClients)
         {
-            var user = GameManager.instance.GetUser(client.userId);
+            var user = GameManager.Instance().GetUser(client.userId);
             options.Add(new TMPro.TMP_Dropdown.OptionData(user != null ? user.username : client.userId));
         }
 

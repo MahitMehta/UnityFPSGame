@@ -5,6 +5,8 @@ using UnityEngine.Networking;
 using NativeWebSocket;
 using WSMessage;
 using Newtonsoft.Json;
+using System;
+using System.Reflection;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -18,10 +20,14 @@ public class NetworkManager : MonoBehaviour
     private string WEBSOCKET_ADDRESS;
     private string HTTP_ADDRESS;
 
-    public int ticks = 0; 
+    public int ticks = 0;
+    private readonly static int MAX_TICK_DIVERGENCE = 1; 
  
     protected WebSocket ws;
     public Dictionary<string, User> users = new ();
+
+    public Dictionary<string, Update> updates = new ();
+    public List<BatchTransform> batchTransforms; 
 
     protected virtual void Start()
     {
@@ -34,9 +40,42 @@ public class NetworkManager : MonoBehaviour
         ws.Close();
     }
 
+    public void RemoveBTUpdate(string key)
+    {
+        updates.Remove(key);
+    }
+
+    public void AddBTUpdate(string key, Action cb)
+    {
+        MethodInfo methodInfo = cb.Method;
+        UpdateAttribute update = Attribute.GetCustomAttribute(methodInfo, typeof(UpdateAttribute)) as UpdateAttribute;
+
+        updates.Add(key, new Update
+        {
+             Callback = cb,
+             TickRate = update.TickRate,
+             Subscribe = update.Subscribe
+        });
+    }
+
     public void FixedUpdate()
     {
         ticks++;
+
+        var updateClone = new Dictionary<string, Update>(updates);
+
+        foreach (var key in updateClone.Keys)
+        {
+            if (ticks % updates[key].TickRate == 0) updates[key].Callback();
+            if (!updates[key].Subscribe) updates.Remove(key);
+        }
+
+        if (batchTransforms.Count == 0) return; 
+
+        SendMessages(
+          new List<Message>() { ContructBatchTransformMessage(batchTransforms) });
+
+        batchTransforms.Clear();
     }
 
     public User GetUser(string userId)
@@ -47,66 +86,55 @@ public class NetworkManager : MonoBehaviour
     async protected void ConnectToWebSocket(string userId)
     {
         if (ws != null) return;
-
         ws = new WebSocket(WEBSOCKET_ADDRESS + "?userId=" + userId);
       
         ws.OnMessage += (bytes) =>
         {
             var data = System.Text.Encoding.UTF8.GetString(bytes);
-   
             MessagesContainer<GeneralBody> mc = JsonConvert.DeserializeObject<MessagesContainer<GeneralBody>>(data);
 
             foreach (var message in mc.messages)
             {
-                if (message.type.Equals("created_room"))
+                if (message.type.Equals(WSMessage.Type.CREATED_ROOM))
                 {
                     OnCreatedRoom(message.body.name);
-                } else if (message.type.Equals("sync_tick")) {
-                    Debug.Log("sync tick");
-                }
-                else if (message.type.Equals("joined_room"))
+                } else if (message.type.Equals(WSMessage.Type.SYNC_TICK)) {
+                    if (Mathf.Abs(ticks - message.body.ticks) > MAX_TICK_DIVERGENCE) ticks = message.body.ticks;
+                } else if (message.type.Equals(WSMessage.Type.JOINED_ROOM))
                 {
                     if (!users.ContainsKey(message.body.userId)) users.Add(message.body.userId, new User());
                     users[message.body.userId].username = message.body.username;
                     users[message.body.userId].isConnected = true; 
                     OnJoinedRoom(message.body.name, message.body.userId, message.body.username);
-                }
-                else if (message.type.Equals("left_room"))
+                } else if (message.type.Equals(WSMessage.Type.LEFT_ROOM))
                 {
                     users[message.body.userId].isConnected = false;
                     OnLeftRoom(message.body.userId);
 
-                }
-                else if (message.type.Equals("batch_transform"))
+                } else if (message.type.Equals(WSMessage.Type.BATCH_TRANSFORM))
                 {
                     OnBatchTransform(message.body.transformations);
 
-                }
-                else if (message.type.Equals("set_user_property"))
+                } else if (message.type.Equals(WSMessage.Type.SET_USER_PROPERTY))
                 {
                     var userId = message.body.userId;
 
                     if (!users.ContainsKey(userId))
                     {
-                        Debug.Log("Creating new user: " + userId);
                         users.Add(userId, new User()
                         {
                             isConnected = true,
                             userId = userId,
                         });
                     }
-
-                    Debug.Log("username: " + message.body.value);
-         
                     if (message.body.property == "username") users[userId].username = message.body.value;
 
                     OnSetUserProperty(userId, message.body.property, message.body.value);
-                }
-                else if (message.type.Equals("broadcast_method_call"))
+                } else if (message.type.Equals(WSMessage.Type.BROADCAST_METHOD_CALL))
                 {
                     string methodName = message.body.method;
                     object[] parameters = new object[] { };
-                    typeof(GameManager).GetMethod(methodName).Invoke(GameManager.instance, parameters);
+                    typeof(GameManager).GetMethod(methodName).Invoke(GameManager.Instance(), parameters);
                 }
             }
         };
@@ -121,7 +149,6 @@ public class NetworkManager : MonoBehaviour
             ws.DispatchMessageQueue();
         #endif
     }
-
 
     protected IEnumerator GetAllRooms()
     {
@@ -183,7 +210,7 @@ public class NetworkManager : MonoBehaviour
         BroadcastMethodCallBody body = new() { method = method };
         Message<BroadcastMethodCallBody> msg = new()
         {
-            type = "broadcast_method_call",
+            type = WSMessage.Type.BROADCAST_METHOD_CALL,
             body = body
         };
 
@@ -195,7 +222,7 @@ public class NetworkManager : MonoBehaviour
         BatchTransformationBody body = new() { transformations = bt };
         Message<BatchTransformationBody> msg = new()
         {
-            type = "batch_transform",
+            type = WSMessage.Type.BATCH_TRANSFORM,
             body = body
         };
 
@@ -212,7 +239,7 @@ public class NetworkManager : MonoBehaviour
         };
         Message<UserPropertyBody> msg = new()
         {
-            type = "set_user_property",
+            type = WSMessage.Type.SET_USER_PROPERTY,
             body = body
         };
         return msg; 
@@ -223,7 +250,7 @@ public class NetworkManager : MonoBehaviour
         RoomBody rb = new() { name = roomName };
         Message<RoomBody> msg = new()
         {
-            type = "join_room",
+            type = WSMessage.Type.JOIN_ROOM,
             body = rb
         };
 
@@ -235,7 +262,7 @@ public class NetworkManager : MonoBehaviour
         RoomBody rb = new() { name = roomName };
         Message<RoomBody> msg = new()
         {
-            type = "create_room",
+            type = WSMessage.Type.CREATE_ROOM,
             body = rb
         };
 

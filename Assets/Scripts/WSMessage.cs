@@ -1,15 +1,52 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace WSMessage {
-    [System.Serializable]
+    public enum Type {
+        JOIN_ROOM,
+        JOINED_ROOM,
+        CREATE_ROOM,
+        CREATED_ROOM,
+        LEFT_ROOM,
+        SET_USER_PROPERTY,
+        BATCH_TRANSFORM,
+        BROADCAST_METHOD_CALL,
+        SYNC_TICK
+    }
+
+    public enum BTType
+    {
+        Transform,
+        Instantiate
+    }
+
+    [AttributeUsage(AttributeTargets.Method, Inherited = false)]
+    public class UpdateAttribute : Attribute
+    {
+        public bool Subscribe;
+        public int TickRate;
+
+        public UpdateAttribute(bool Subscribe = false, int TickRate = 1)
+        {
+            this.Subscribe = Subscribe;
+            this.TickRate = TickRate; 
+        }
+    }
+
+    public class Update
+    {
+        public Action Callback { get; set;  }
+        public bool Subscribe { get; set; } = false; 
+        public int TickRate { get; set;  } = 1; 
+    }
+
+    [Serializable]
     public class RoomBody
     {
         public string name;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class JoinedRoomBody
     {
         public string name;
@@ -17,7 +54,7 @@ namespace WSMessage {
         public string username; 
     }
 
-    [System.Serializable]
+    [Serializable]
     public class UserPropertyBody
     {
         public string property;
@@ -25,42 +62,43 @@ namespace WSMessage {
         public string userId;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class LeftRoomBody
     {
         public string userId;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class Message
     {
-        public string type;
+        public Type type;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class Message<T> : Message
     {
         public T body;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class RoomsResponse
     {
         public List<string> rooms;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class RoomClientsResponse
     {
         public string room;
         public List<User> clients;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class BatchTransform
     {
-        public string type; // transform
+        public BTType type; // transform
         public string go; // gameobject name
+        public string pf; // prefab name 
         public long ts;
         public int scene; // Scene Number
         public string userId;
@@ -69,19 +107,19 @@ namespace WSMessage {
         public List<int> state;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class BatchTransformationBody
     {
         public List<BatchTransform> transformations;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class BroadcastMethodCallBody
     {
         public string method; 
     }
 
-    [System.Serializable]
+    [Serializable]
     public class User
     {
         public string userId;
@@ -94,13 +132,13 @@ namespace WSMessage {
         public List<Message> messages;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class MessagesContainer<T> 
     {
         public List<Message<T>> messages;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class GeneralBody 
     {
         // broadcast method call body
@@ -109,8 +147,8 @@ namespace WSMessage {
         // room body 
         public string name { get; set; }
 
-        // ticks
-        public string ticks { get; set; }
+        // sync tick body and batch transformation body 
+        public int ticks { get; set; }
 
         // left room body 
         public string userId { get; set; }
