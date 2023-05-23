@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,6 +18,7 @@ public class Player : MonoBehaviour
     public float viewRotationXMin = 0.0f;
 
     public GameObject ammo;
+    public Transform indexFinger;
 
     private string sceneName; 
     // Start is called before the first frame update
@@ -25,6 +27,18 @@ public class Player : MonoBehaviour
         sceneName = SceneManager.GetActiveScene().name;
         camera = gameObject.GetComponentInChildren<Camera>();
         animator = gameObject.GetComponentInChildren<Animator>();
+
+        indexFinger = getIndexFinger(transform);
+
+    }
+
+    Transform getIndexFinger(Transform parent)
+    {
+        foreach(Transform child in parent){
+            if (child.name == "index_01_r") return child;
+            else if(getIndexFinger(child) != null) return getIndexFinger(child);
+        }
+        return null;
     }
 
     // Update is called once per frame
@@ -115,7 +129,8 @@ public class Player : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1) && sceneName == "GameScene")
         {
-            Instantiate(ammo, transform.position + transform.forward, transform.rotation).AddComponent<BallMove>().source = gameObject;
+            Debug.Log(indexFinger.position);
+            Instantiate(ammo, indexFinger.position, transform.rotation).AddComponent<BallMove>().source = gameObject;
         }
 
         if (Input.GetKeyDown(KeyCode.Space))

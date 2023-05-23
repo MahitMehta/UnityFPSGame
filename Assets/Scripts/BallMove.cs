@@ -53,7 +53,10 @@ public class BallMove : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject == source) return;
-        //Destroy(gameObject);
+        if (other.gameObject.name == source.name) return;
+        var e = transform.Find("Fire_Yellow").GetComponent<ParticleSystem>().emission;
+        e.enabled = false;
+        transform.Find("Fire_Yellow").parent = null;
+        Destroy(gameObject);
     }
 }
