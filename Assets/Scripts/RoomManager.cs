@@ -123,11 +123,11 @@ public class RoomManager : MonoBehaviour
                     Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]))
                 ) as GameObject;
                 go.name = bt.go + ":" + bt.userId;
+                if (bt.pf == "GreenWizard") go.AddComponent<PlayerClone>();
             }
 
             if (bt.pf == "GreenWizard" && bt.type == BTType.Transform)
             {
-                go.AddComponent<PlayerClone>();
                 if (go.GetComponent<Interpolator>() == null)
                 {
                     go.AddComponent<Interpolator>();
