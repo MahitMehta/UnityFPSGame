@@ -4,15 +4,25 @@ using UnityEngine;
 
 public class DestroyParticleSystem : MonoBehaviour
 {
+    public ParticleSystem particleSystem;
+    private bool exploded = false;
     // Start is called before the first frame update
     void Start()
     {
-        GetComponent<ParticleSystem>().Emit(1);
+        particleSystem = GetComponent<ParticleSystem>();
+        particleSystem.Stop();
+        particleSystem.Play();
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (GetComponent<ParticleSystem>().particleCount == 0) Destroy(gameObject);
+        if (!exploded)
+        {
+            exploded = true;
+            Debug.Log("explosion: "+transform.position);
+        }
+        //if (particleSystem.particleCount == 0 && exploded) Destroy(gameObject);
     }
 }
