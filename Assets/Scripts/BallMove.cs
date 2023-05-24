@@ -49,13 +49,13 @@ public class BallMove : MonoBehaviour
     void Update()
     {
         rb.velocity = transform.forward * 25;
-        if ((transform.position - source.transform.position).magnitude > 20) vanish(false);
+       // if ((transform.position - source.transform.position).magnitude > 20) vanish(false);
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.name == source.name) return;
-        vanish(true);
+       // vanish(true);
     }
 
     private void vanish(bool explode)
