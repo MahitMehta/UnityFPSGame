@@ -46,14 +46,6 @@ public class MainGameManager : MonoBehaviour
 
     }
 
-    public long GetNanoseconds()
-    {
-        double timestamp = Stopwatch.GetTimestamp();
-        double nanoseconds = 1_000_000_000.0 * timestamp / Stopwatch.Frequency;
-
-        return (long) nanoseconds;
-    }
-
     [Update(TickRate = 1, Subscribe = true)]
     private void PlayerBatchTranform()
     {
@@ -61,7 +53,7 @@ public class MainGameManager : MonoBehaviour
         {
             go = player.name,
             pf = "GreenWizard",
-            ts = GetNanoseconds(),
+            ticks = GameManager.Instance().ticks,
             type = BTType.Transform,
             scene = 2,
             userId = GameManager.Instance().userId,
@@ -120,8 +112,7 @@ public class MainGameManager : MonoBehaviour
                     go.GetComponent<Interpolator>().lastRotation = Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]));
                     go.GetComponent<Interpolator>().targetRotation = Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]));
 
-                    go.GetComponent<Interpolator>().previousTSPosition = bt.ts;
-                    go.GetComponent<Interpolator>().previousTSRotation = bt.ts;
+                    go.GetComponent<Interpolator>().previousTicks = bt.ticks; 
                 }
 
                 go.GetComponent<Interpolator>().AddPosition(bt);

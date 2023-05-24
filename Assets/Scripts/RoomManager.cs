@@ -41,7 +41,7 @@ public class RoomManager : MonoBehaviour
 
         startGame.onClick.AddListener(delegate {
             GameManager.Instance().SendMessages(new List<Message>() {
-                    GameManager.Instance().ContructBroadcastMethodCallMessage("ChangeScene")
+                    GameManager.Instance().ContructBroadcastMethodCallMessage("StartGame")
             });
         });
 
@@ -63,22 +63,14 @@ public class RoomManager : MonoBehaviour
  
     }
 
-    public long GetNanoseconds()
-    {
-        double timestamp = Stopwatch.GetTimestamp();
-        double nanoseconds = 1_000_000_000.0 * timestamp / Stopwatch.Frequency;
-
-        return (long)nanoseconds;
-    }
-
     [Update(TickRate = 1, Subscribe = true)]
     private void PlayerBatchTranform() {
         BatchTransform bt = new()
         {
             go = player.name,
             pf = "GreenWizard",
-            ts = GetNanoseconds(),
             type = BTType.Transform,
+            ticks = GameManager.Instance().ticks,
             scene = 1,
             userId = GameManager.Instance().userId,
             position = new List<float>() {
@@ -137,8 +129,7 @@ public class RoomManager : MonoBehaviour
                     go.GetComponent<Interpolator>().lastRotation = Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]));
                     go.GetComponent<Interpolator>().targetRotation = Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]));
 
-                    go.GetComponent<Interpolator>().previousTSPosition = bt.ts;
-                    go.GetComponent<Interpolator>().previousTSRotation = bt.ts;
+                    go.GetComponent<Interpolator>().previousTicks = bt.ticks;
                 }
 
                 go.GetComponent<Interpolator>().AddPosition(bt);

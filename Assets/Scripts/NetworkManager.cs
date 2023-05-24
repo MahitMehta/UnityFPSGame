@@ -67,7 +67,7 @@ public class NetworkManager : MonoBehaviour
         foreach (var key in updateClone.Keys)
         {
             if (ticks % updates[key].TickRate == 0) updates[key].Callback();
-            if (!updates[key].Subscribe) updates.Remove(key);
+            if (!updates[key].Subscribe && updates.ContainsKey(key)) updates.Remove(key);
         }
 
         if (batchTransforms.Count == 0) return; 
@@ -98,7 +98,8 @@ public class NetworkManager : MonoBehaviour
                 if (message.type.Equals(WSMessage.Type.CREATED_ROOM))
                 {
                     OnCreatedRoom(message.body.name);
-                } else if (message.type.Equals(WSMessage.Type.SYNC_TICK)) {
+                } else if (message.type.Equals(WSMessage.Type.SYNC_TICK))
+                {
                     if (Mathf.Abs(ticks - message.body.ticks) > MAX_TICK_DIVERGENCE) ticks = message.body.ticks;
                 } else if (message.type.Equals(WSMessage.Type.JOINED_ROOM))
                 {
@@ -150,7 +151,7 @@ public class NetworkManager : MonoBehaviour
         #endif
     }
 
-    protected IEnumerator GetAllRooms()
+    public IEnumerator GetAllRooms()
     {
         UnityWebRequest www = UnityWebRequest.Get(HTTP_ADDRESS + "/room/all");
         www.SetRequestHeader("Content-Type", "application/json; charset=utf-8");
@@ -167,7 +168,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    protected IEnumerator GetAllRoomClients(string room)
+    public IEnumerator GetAllRoomClients(string room)
     {
         UnityWebRequest www = UnityWebRequest.Get(HTTP_ADDRESS + "/room/clients?room=" + room);
         www.SetRequestHeader("Content-Type", "application/json; charset=utf-8");
@@ -245,7 +246,7 @@ public class NetworkManager : MonoBehaviour
         return msg; 
     }
 
-    protected Message<RoomBody> ContructJoinRoomMessage(string roomName)
+    public Message<RoomBody> ContructJoinRoomMessage(string roomName)
     {
         RoomBody rb = new() { name = roomName };
         Message<RoomBody> msg = new()
@@ -257,7 +258,7 @@ public class NetworkManager : MonoBehaviour
         return msg; 
     }
 
-    protected Message<RoomBody> ContructCreateRoomMessage(string roomName)
+    public Message<RoomBody> ContructCreateRoomMessage(string roomName)
     {
         RoomBody rb = new() { name = roomName };
         Message<RoomBody> msg = new()

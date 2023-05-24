@@ -98,6 +98,7 @@ namespace WSMessage {
     {
         public BTType type; // transform
         public string go; // gameobject name
+        public int ticks; 
         public string pf; // prefab name 
         public long ts;
         public int scene; // Scene Number
