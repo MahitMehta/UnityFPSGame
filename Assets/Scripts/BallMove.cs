@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using WSMessage;
 
 public class BallMove : MonoBehaviour
@@ -9,6 +10,7 @@ public class BallMove : MonoBehaviour
     public Rigidbody rb;
     public GameObject source;
     public bool isClone = false;
+    public GameObject explosion;
 
     void Start()
     {
@@ -60,17 +62,22 @@ public class BallMove : MonoBehaviour
 
     private void vanish(bool explode)
     {
-        var e = transform.Find("Fire_Yellow").GetComponent<ParticleSystem>().emission;
-        e.enabled = false;
-        transform.Find("Fire_Yellow").parent = null;
-        if (explode)
+        foreach (Transform child in transform)
         {
-            var impact = transform.Find("Impact02").GetComponent<ParticleSystem>();
-            impact.Play();
-            transform.Find("Impact02").parent = null;
+            if (child.GetComponent<ParticleSystem>() != null)
+            {
+                if (!explode && child.gameObject.name.Equals("Impact02")) Destroy(child);
+                var e = child.GetComponent<ParticleSystem>().emission;
+                e.enabled = false;
+                child.parent = null;
+                child.AddComponent<DestroyParticleSystem>();
+
+            }
         }
+        Debug.Log("collided: " + transform.position);
 
+        Instantiate(Resources.Load("Impact02"), transform.position - transform.forward, transform.rotation);
         Destroy(gameObject);
-
     }
+
 }
