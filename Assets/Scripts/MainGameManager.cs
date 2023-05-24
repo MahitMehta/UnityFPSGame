@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using UnityEditor;
 using UnityEngine;
 using WSMessage;
 
@@ -32,7 +33,12 @@ public class MainGameManager : MonoBehaviour
     private void Start()
     {
         player.AddComponent<Rigidbody>();
-        player.AddComponent<Player>().ammo = ammo;
+
+        //shoul be changed bse on selections;
+        Player p = player.AddComponent<Player>();
+        p.ammo = ammo;
+        p.wizardClass = "Fire";
+
         player.GetComponent<Rigidbody>().freezeRotation = true;
 
         cursorLockMode = CursorLockMode.Locked;
@@ -60,7 +66,7 @@ public class MainGameManager : MonoBehaviour
         BatchTransform bt = new()
         {
             go = player.name,
-            pf = "GreenWizard",
+            pf = player.GetComponent<Player>().wizardClass + "Wizard",
             ts = GetNanoseconds(),
             type = BTType.Transform,
             scene = 2,
@@ -106,10 +112,10 @@ public class MainGameManager : MonoBehaviour
                     Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]))
                 ) as GameObject;
                 go.name = bt.go + ":" + bt.userId;
-                if (bt.pf == "GreenWizard") go.AddComponent<PlayerClone>();
+                if (bt.pf.EndsWith("Wizard")) go.AddComponent<PlayerClone>();
             }
 
-            if (bt.pf == "GreenWizard" && bt.type == BTType.Transform)
+            if (bt.pf.EndsWith("Wizard") && bt.type == BTType.Transform)
             {
                 if (go.GetComponent<Interpolator>() == null)
                 {

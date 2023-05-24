@@ -49,14 +49,28 @@ public class BallMove : MonoBehaviour
     void Update()
     {
         rb.velocity = transform.forward * 25;
+        if ((transform.position - source.transform.position).magnitude > 20) vanish(false);
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.name == source.name) return;
+        vanish(true);
+    }
+
+    private void vanish(bool explode)
+    {
         var e = transform.Find("Fire_Yellow").GetComponent<ParticleSystem>().emission;
         e.enabled = false;
         transform.Find("Fire_Yellow").parent = null;
+        if (explode)
+        {
+            var impact = transform.Find("Impact02").GetComponent<ParticleSystem>();
+            impact.Play();
+            transform.Find("Impact02").parent = null;
+        }
+
         Destroy(gameObject);
+
     }
 }

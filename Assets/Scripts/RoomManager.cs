@@ -76,7 +76,7 @@ public class RoomManager : MonoBehaviour
         BatchTransform bt = new()
         {
             go = player.name,
-            pf = "GreenWizard",
+            pf = "FireWizard",
             ts = GetNanoseconds(),
             type = BTType.Transform,
             scene = 1,
@@ -123,10 +123,10 @@ public class RoomManager : MonoBehaviour
                     Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]))
                 ) as GameObject;
                 go.name = bt.go + ":" + bt.userId;
-                if (bt.pf == "GreenWizard") go.AddComponent<PlayerClone>();
+                if (bt.pf.EndsWith("Wizard")) go.AddComponent<PlayerClone>();
             }
 
-            if (bt.pf == "GreenWizard" && bt.type == BTType.Transform)
+            if (bt.pf.EndsWith("Wizard") && bt.type == BTType.Transform)
             {
                 if (go.GetComponent<Interpolator>() == null)
                 {

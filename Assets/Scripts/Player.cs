@@ -19,6 +19,8 @@ public class Player : MonoBehaviour
 
     public GameObject ammo;
     public Transform indexFinger;
+    public string wizardClass;
+
 
     private string sceneName; 
     // Start is called before the first frame update
@@ -129,7 +131,6 @@ public class Player : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1) && sceneName == "GameScene")
         {
-            Debug.Log(indexFinger.position);
             Instantiate(ammo, indexFinger.position, transform.rotation).AddComponent<BallMove>().source = gameObject;
         }
 
