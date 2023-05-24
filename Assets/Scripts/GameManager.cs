@@ -4,18 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using WSMessage; 
+using WSMessage;
 
 public class GameManager : NetworkManager
 {
     private static GameManager _instance;
-
-    public Button createRoom;
-    public Button joinRoom;
-
-    public TMPro.TMP_InputField usernameField;
-    public TMPro.TMP_InputField newRoomField;
-    public TMPro.TMP_Dropdown roomOptions;
 
     public string userId;
     public string room; 
@@ -27,43 +20,17 @@ public class GameManager : NetworkManager
         if (_instance == null) _instance = this;
         else Destroy(gameObject);
     }
-
-    // 15 characters
-    public string UserID_GuidBase64Shortened() => Convert.ToBase64String(Guid.NewGuid().ToByteArray())
-                                                 .Replace("/", "_")
-                                                 .Replace("+", "-")
-                                                 .Substring(0, 15);
    
     protected override void Start()
     {
         base.Start();
-        userId = UserID_GuidBase64Shortened();
+        userId = Utilities.UserID_GuidBase64Shortened();
 
         StartCoroutine(GetAllRooms());
         ConnectToWebSocket(userId);
-
-        if (SceneManager.GetActiveScene().name.Equals("LobbyScene"))
-        {
-            createRoom.onClick.AddListener(delegate {
-                SendMessages(new List<Message>() {
-                    ContructCreateRoomMessage(newRoomField.text),
-                    ContructUserPropertyMessage("username", userId, usernameField.text),
-                });
-            });
-
-            joinRoom.onClick.AddListener(delegate {
-                string selectedRoom = roomOptions.options[roomOptions.value].text;
-  
-                SendMessages(new List<Message>() {
-                    ContructJoinRoomMessage(selectedRoom),
-                    ContructUserPropertyMessage("username", userId, usernameField.text),
-                });
-            });
-        }
     }
 
-    public void ChangeScene() {
-        Debug.Log("Change Scene");
+    public void StartGame() {
         RemoveBTUpdate("player:room");
         SceneManager.LoadScene("GameScene");
     }
@@ -98,15 +65,15 @@ public class GameManager : NetworkManager
 
         foreach (string room in rooms) options.Add(new TMPro.TMP_Dropdown.OptionData(room));
 
-        roomOptions.AddOptions(options);
+        LobbyManager.Instance().roomOptions.AddOptions(options);
         UnityMainThreadDispatcher.Instance().Enqueue(UpdateRoomOptions);
 
     }
 
     private void UpdateRoomOptions()
     {
-        if (roomOptions.value.Equals(-1)) roomOptions.value = 0; 
-        roomOptions.RefreshShownValue();
+        if (LobbyManager.Instance().roomOptions.value.Equals(-1)) LobbyManager.Instance().roomOptions.value = 0;
+        LobbyManager.Instance().roomOptions.RefreshShownValue();
     }
 
     private IEnumerator loadRoomScene()
