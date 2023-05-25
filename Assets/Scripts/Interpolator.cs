@@ -36,8 +36,7 @@ public class Interpolator : MonoBehaviour
             lastPosition = transform.position; 
             targetPosition = new Vector3(bt.position[0], bt.position[1], bt.position[2]);
 
-
-            deltaTimePosition = (bt.ticks - previousTicksPosition) * Time.fixedDeltaTime;
+            deltaTimePosition = Mathf.Abs(bt.ticks - previousTicksPosition) * Time.fixedDeltaTime;
             previousTicksPosition = bt.ticks;
         }
 
@@ -49,7 +48,7 @@ public class Interpolator : MonoBehaviour
             lastRotation = transform.rotation;
             targetRotation = Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]));
 
-            deltaTimeRotation = (bt.ticks - previousTicksRotation) * Time.fixedDeltaTime;
+            deltaTimeRotation = Mathf.Abs(bt.ticks - previousTicksRotation) * Time.fixedDeltaTime;
             previousTicksRotation = bt.ticks;
 
         }
@@ -64,11 +63,20 @@ public class Interpolator : MonoBehaviour
 
     public void AddPosition(BatchTransform bt)
     {
+        int previousTicks = positionUpdates.Count > 0 ? positionUpdates.Peek().ticks : previousTicksPosition;
+        if (bt.ticks - previousTicks < 0) Debug.Log("Position: Tick Mismatch");
+        if (bt.ticks - previousTicks < -1)
+        {
+            Debug.Log("Position: Skipping, diff more than 1");
+            return;
+        }
         positionUpdates.Enqueue(bt);
     }
 
     public void AddRotation(BatchTransform bt)
     {
+        int previousTicks = rotationUpdates.Count > 0 ? rotationUpdates.Peek().ticks : previousTicksRotation;
+        if (bt.ticks - previousTicks < -1) return;
         rotationUpdates.Enqueue(bt);
     }
 }
