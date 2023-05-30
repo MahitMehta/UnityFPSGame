@@ -112,13 +112,15 @@ public class MainGameManager : MonoBehaviour
                 if (go.GetComponent<Interpolator>() == null)
                 {
                     go.AddComponent<Interpolator>();
+
                     go.GetComponent<Interpolator>().lastPosition = new Vector3(bt.position[0], bt.position[1], bt.position[2]);
                     go.GetComponent<Interpolator>().targetPosition = new Vector3(bt.position[0], bt.position[1], bt.position[2]);
 
                     go.GetComponent<Interpolator>().lastRotation = Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]));
                     go.GetComponent<Interpolator>().targetRotation = Quaternion.Euler(new Vector3(bt.rotation[0], bt.rotation[1], bt.rotation[2]));
 
-                    go.GetComponent<Interpolator>().previousTicks = bt.ticks; 
+                    go.GetComponent<Interpolator>().previousTicksRotation = bt.ticks;
+                    go.GetComponent<Interpolator>().previousTicksPosition= bt.ticks;
                 }
 
                 go.GetComponent<Interpolator>().AddPosition(bt);
