@@ -35,6 +35,7 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
+        if (player == null) return;
         player.AddComponent<Rigidbody>();
         player.AddComponent<Player>();
         player.GetComponent<Rigidbody>().freezeRotation = true;
@@ -98,7 +99,6 @@ public class RoomManager : MonoBehaviour
 
             Cursor.lockState = cursorLockMode;
         }
-        UnityEngine.Debug.Log(playerStateRT.Count);
 
     }
 
