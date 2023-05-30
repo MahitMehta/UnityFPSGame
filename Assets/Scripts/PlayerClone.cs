@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerClone : MonoBehaviour
 {
     public Animator animator;
-    public List<int> playerState = new() { 0, 0, 0, 0 };
+    public List<int> playerState = new() { 0, 0, 0, 0, 0, 0, 0};
     // Start is called before the first frame update
     void Start()
     {
@@ -52,5 +52,29 @@ public class PlayerClone : MonoBehaviour
         {
             animator.SetBool("walkBack", false);
         }
+        
+        if (playerState[4] == 1)
+        {
+            animator.SetBool("sprint", true);
+        }
+        else
+        {
+            animator.SetBool("sprint", false);
+        }
+
+        if (playerState[5] == 1)
+        {
+            animator.SetTrigger("attack1");
+            playerState[5] = 0;
+        }
+
+        if (playerState[6] == 1)
+        {
+            animator.SetTrigger("attack2");
+            playerState[6] = 0;
+        }
+
+
+
     }
 }

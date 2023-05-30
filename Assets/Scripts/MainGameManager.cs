@@ -14,8 +14,8 @@ public class MainGameManager : MonoBehaviour
     private static MainGameManager _instance;
     public GameObject ammo;
 
-    // top right bottom left 
-    public List<int> playerStateRT = new() { 0, 0, 0, 0 }; // realtime
+    // top right bottom left sprint attk1 attk2
+    public List<int> playerStateRT = new() { 0, 0, 0, 0, 0, 0, 0}; // realtime
 
     void Awake()
     {
@@ -34,7 +34,7 @@ public class MainGameManager : MonoBehaviour
     {
         player.AddComponent<Rigidbody>();
 
-        //shoul be changed bse on selections;
+        //should be changed based on selections;
         Player p = player.AddComponent<Player>();
         p.ammo = ammo;
         p.wizardClass = "Fire";
@@ -130,6 +130,10 @@ public class MainGameManager : MonoBehaviour
                 go.GetComponent<BallMove>().source = GameObject.Find(player.name + ":" + bt.userId);
             }
         }
+
+        //triggers
+        playerStateRT[5] = 0;
+        playerStateRT[6] = 0;
     }
 
     public static bool Exists()

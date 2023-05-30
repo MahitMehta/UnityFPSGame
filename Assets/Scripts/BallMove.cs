@@ -51,7 +51,7 @@ public class BallMove : MonoBehaviour
     void Update()
     {
         rb.velocity = transform.forward * 25;
-        if ((transform.position - source.transform.position).magnitude > 20) vanish(false);
+        if ((transform.position - source.transform.position).magnitude > 50) vanish(false);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -66,7 +66,6 @@ public class BallMove : MonoBehaviour
         {
             if (child.GetComponent<ParticleSystem>() != null)
             {
-                if (!explode && child.gameObject.name.Equals("Impact02")) Destroy(child);
                 var e = child.GetComponent<ParticleSystem>().emission;
                 e.enabled = false;
                 child.parent = null;
@@ -76,7 +75,7 @@ public class BallMove : MonoBehaviour
         }
         Debug.Log("collided: " + transform.position);
 
-        Instantiate(Resources.Load("Impact02"), transform.position - transform.forward, transform.rotation);
+        if(explode) Instantiate(Resources.Load("Impact02"), transform.position - transform.forward, transform.rotation);
         Destroy(gameObject);
     }
 

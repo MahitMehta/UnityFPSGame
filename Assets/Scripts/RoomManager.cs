@@ -18,7 +18,7 @@ public class RoomManager : MonoBehaviour
     private static RoomManager _instance;
 
     // top right bottom left 
-    public List<int> playerStateRT = new() { 0, 0, 0, 0 }; // realtime
+    public List<int> playerStateRT = new() { 0, 0, 0, 0, 0, 0, 0}; // realtime
 
     void Awake()
     {
@@ -98,6 +98,8 @@ public class RoomManager : MonoBehaviour
 
             Cursor.lockState = cursorLockMode;
         }
+        UnityEngine.Debug.Log(playerStateRT.Count);
+
     }
 
     public void HandleBatchTransformations(List<BatchTransform> transformations)
