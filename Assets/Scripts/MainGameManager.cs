@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
 using WSMessage;
@@ -45,6 +44,8 @@ public class MainGameManager : MonoBehaviour
         Cursor.lockState = cursorLockMode;
 
         GameManager.Instance().AddBTUpdate("player:game", PlayerBatchTranform);
+
+        Debug.Log(playerStateRT);
     }
 
     public void OnLeftRoom(string userId)
