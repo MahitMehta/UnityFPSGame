@@ -138,6 +138,7 @@ public class GameManager : NetworkManager
         UnityMainThreadDispatcher.Instance().Enqueue(delegate
         {
             if (RoomManager.Exists()) RoomManager.Instance().RemoveClient(disconnectedUserId);
+            if (MainGameManager.Exists()) MainGameManager.Instance().OnLeftRoom(disconnectedUserId);
         });
     }
 

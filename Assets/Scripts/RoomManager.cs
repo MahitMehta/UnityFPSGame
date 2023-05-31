@@ -12,8 +12,9 @@ public class RoomManager : MonoBehaviour
     public TMPro.TMP_Dropdown clients;
     public TMPro.TMP_Text roomNameLabel;
     public GameObject player;
-    public Button startGame;
-
+    public Button startGame, goToLockeroom;
+    public Camera lockeroom, main;
+    public bool inLockeroom = false;
     public CursorLockMode cursorLockMode = CursorLockMode.Locked;
 
     private static RoomManager _instance;
@@ -41,11 +42,16 @@ public class RoomManager : MonoBehaviour
                     GameManager.Instance().ContructBroadcastMethodCallMessage("StartGame")
             });
         });
+        goToLockeroom.onClick.AddListener(delegate {
+            main.enabled = inLockeroom;
+            lockeroom.enabled = !inLockeroom;
+            inLockeroom = true;
+            //goToLockeroom.GetComponentInChildren<TMPro>()
+        });
 
-        if (player == null) return;
         player.AddComponent<Rigidbody>();
         player.AddComponent<Player>();
-        player.GetComponent<Rigidbody>().freezeRotation = true;
+        player.GetComponent<Rigidbody>().freezeRotation = false;
 
 
 
