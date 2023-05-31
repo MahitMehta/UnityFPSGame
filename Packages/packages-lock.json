@@ -14,6 +14,15 @@
       "dependencies": {},
       "hash": "7be7e8f28977852939dc2e016b271163a0db9eca"
     },
+    "com.unity.cinemachine": {
+      "version": "2.8.9",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.test-framework": "1.1.31"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.collab-proxy": {
       "version": "1.15.15",
       "depth": 0,

@@ -23,6 +23,5 @@ public class DestroyParticleSystem : MonoBehaviour
             exploded = true;
             Debug.Log("explosion: "+transform.position);
         }
-        //if (particleSystem.particleCount == 0 && exploded) Destroy(gameObject);
     }
 }

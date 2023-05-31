@@ -18,7 +18,7 @@ public class RoomManager : MonoBehaviour
     private static RoomManager _instance;
 
     // top right bottom left 
-    public List<int> playerStateRT = new() { 0, 0, 0, 0 }; // realtime
+    public List<int> playerStateRT = new() { 0, 0, 0, 0, 0, 0, 0}; // realtime
 
     void Awake()
     {
@@ -35,6 +35,7 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
+        if (player == null) return;
         player.AddComponent<Rigidbody>();
         player.AddComponent<Player>();
         player.GetComponent<Rigidbody>().freezeRotation = true;
@@ -98,6 +99,7 @@ public class RoomManager : MonoBehaviour
 
             Cursor.lockState = cursorLockMode;
         }
+
     }
 
     public void HandleBatchTransformations(List<BatchTransform> transformations)
