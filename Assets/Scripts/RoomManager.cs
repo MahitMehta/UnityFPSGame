@@ -123,7 +123,7 @@ public class RoomManager : MonoBehaviour
                 if (go.GetComponent<Interpolator>() == null)
                 {
                     go.AddComponent<Interpolator>();
-
+                    
                     go.GetComponent<Interpolator>().lastPosition = new Vector3(bt.position[0], bt.position[1], bt.position[2]);
                     go.GetComponent<Interpolator>().targetPosition = new Vector3(bt.position[0], bt.position[1], bt.position[2]);
 

@@ -2880,7 +2880,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cde33fe07b4764594ae15cfb16b3b1bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useProduction: 0
+  useProduction: 1
   ticks: 0
   batchTransforms: []
   userId: 

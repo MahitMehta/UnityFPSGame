@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class Player : MonoBehaviour
 {
     public float rotationSpeed = 30;
-    public float positionSpeed = 2.5f;
+    public float positionSpeed = 3.5f;
     public Camera camera;
     public Animator animator;
 
