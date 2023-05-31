@@ -1,8 +1,4 @@
-using JetBrains.Annotations;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.PackageManager;
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -21,7 +17,7 @@ public class Player : MonoBehaviour
 
     public GameObject ammo;
     public Transform indexFinger;
-    public string wizardClass;
+    public string wizardClass = "Fire";
 
     public Vector3 aimingPoint;
 
@@ -35,7 +31,6 @@ public class Player : MonoBehaviour
         animator = gameObject.GetComponentInChildren<Animator>();
 
         indexFinger = getIndexFinger(transform);
-
 
     }
 
@@ -147,7 +142,7 @@ public class Player : MonoBehaviour
             ball.AddComponent<BallMove>().source = gameObject;
             ball.transform.LookAt(aimingPoint);
             animator.SetTrigger("attack1");
-            //MainGameManager.Instance().playerStateRT[5] = 1;
+            MainGameManager.Instance().playerStateRT[5] = 1;
             
         }
 
@@ -157,7 +152,7 @@ public class Player : MonoBehaviour
             Instantiate(ammo, indexFinger.position, transform.rotation).AddComponent<BallMove>().source = gameObject;
             animator.SetTrigger("attack2");
 
-            //MainGameManager.Instance().playerStateRT[6] = 1;
+            MainGameManager.Instance().playerStateRT[6] = 1;
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -169,14 +164,14 @@ public class Player : MonoBehaviour
         {
             Vector3 change = transform.forward * positionSpeed * Time.deltaTime;
             transform.position += change * 2;
-            /*if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[4] = 1;
-            else */if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[4] = 1;
+            if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[4] = 1;
+            else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[4] = 1;
             animator.SetBool("sprint", true);
         }
         else
         {
-            /*if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[4] = 0;
-            else */if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[4] = 0;
+            if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[4] = 0;
+            else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[4] = 0;
             animator.SetBool("sprint", false);
         }
 

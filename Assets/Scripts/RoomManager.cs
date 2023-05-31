@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using WSMessage;
@@ -35,16 +36,18 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
-        if (player == null) return;
-        player.AddComponent<Rigidbody>();
-        player.AddComponent<Player>();
-        player.GetComponent<Rigidbody>().freezeRotation = true;
-
         startGame.onClick.AddListener(delegate {
             GameManager.Instance().SendMessages(new List<Message>() {
                     GameManager.Instance().ContructBroadcastMethodCallMessage("StartGame")
             });
         });
+
+        if (player == null) return;
+        player.AddComponent<Rigidbody>();
+        player.AddComponent<Player>();
+        player.GetComponent<Rigidbody>().freezeRotation = true;
+
+
 
         cursorLockMode = CursorLockMode.Confined;
         Cursor.lockState = cursorLockMode;
@@ -69,7 +72,7 @@ public class RoomManager : MonoBehaviour
         BatchTransform bt = new()
         {
             go = player.name,
-            pf = "FireWizard",
+            pf = player.GetComponent<Player>().wizardClass+"Wizard",
             type = BTType.Transform,
             ticks = GameManager.Instance().ticks,
             scene = 1,
