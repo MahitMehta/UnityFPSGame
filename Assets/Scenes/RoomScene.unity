@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657815, g: 0.49641192, b: 0.57481617, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -380,7 +380,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   clients: {fileID: 658119839}
   roomNameLabel: {fileID: 530517711}
-  player: {fileID: 0}
+  player: {fileID: 1945770753}
   startGame: {fileID: 1117109723}
   cursorLockMode: 1
   playerStateRT: 00000000000000000000000000000000000000000000000000000000
@@ -493,7 +493,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 459802329}
   m_LocalRotation: {x: 0.32326594, y: -0, z: -0, w: 0.94630814}
-  m_LocalPosition: {x: -0.3938704, y: 4.964717, z: -6.5368032}
+  m_LocalPosition: {x: -0.26759464, y: 4.964718, z: -6.5368037}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1922,7 +1922,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1410589544}
   m_LocalRotation: {x: 0.32326594, y: -0, z: -0, w: 0.94630814}
-  m_LocalPosition: {x: 0.9961296, y: 3.6847162, z: -1.9468031}
+  m_LocalPosition: {x: 1.1224053, y: 3.6847172, z: -1.9468036}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2376,30 +2376,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2425229348093296571, guid: 2a8c9c750dd090e4e8981097de4dfaf6, type: 3}
   m_PrefabInstance: {fileID: 1243190050}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1945770756
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1945770753}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc6df3e50702d43a7847e21000e14352, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rotationSpeed: 30
-  positionSpeed: 2.5
-  camera: {fileID: 0}
-  animator: {fileID: 0}
-  viewRotationDeltaYSpeed: 6.5
-  viewRotationDeltaXSpeed: -2.5
-  viewRotationXMax: 22
-  viewRotationXMin: 0
-  ammo: {fileID: 0}
-  indexFinger: {fileID: 0}
-  wizardClass: Fire
-  aimingPoint: {x: 0, y: 0, z: 0}
 --- !u!1 &1953735175
 GameObject:
   m_ObjectHideFlags: 0
