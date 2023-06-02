@@ -50,7 +50,8 @@ public class MainGameManager : MonoBehaviour
 
     public void OnLeftRoom(string userId)
     {
-
+        GameObject go = GameObject.Find("Player:" + userId);
+        Destroy(go);
     }
 
     [Update(TickRate = 1, Subscribe = true)]

@@ -163,7 +163,7 @@ public class Player : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.LeftShift))
         {
             Vector3 change = transform.forward * positionSpeed * Time.deltaTime;
-            transform.position += change * 2;
+            transform.position += change * 1.5f;
             if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[4] = 1;
             else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[4] = 1;
             animator.SetBool("sprint", true);

@@ -21,7 +21,6 @@ public class DestroyParticleSystem : MonoBehaviour
         if (!exploded)
         {
             exploded = true;
-            Debug.Log("explosion: "+transform.position);
         }
     }
 }

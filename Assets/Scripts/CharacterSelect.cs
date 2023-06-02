@@ -63,6 +63,5 @@ public class CharacterSelect : MonoBehaviour
                 }
             }
         }
-        Debug.Log(selectionName);
     }
 }

@@ -56,6 +56,9 @@ public class BallMove : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.name == source.name) return;
+
+        Debug.Log(other.gameObject.name.StartsWith("Player:"));
+
         vanish(true);
     }
 
