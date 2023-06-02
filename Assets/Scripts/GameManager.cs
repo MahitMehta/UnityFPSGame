@@ -155,4 +155,9 @@ public class GameManager : NetworkManager
         }
         return _instance;
     }
+
+    public User getUser()
+    {
+        return users[userId];
+    }
 }

@@ -56,6 +56,7 @@ public class BallMove : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.name == source.name) return;
+        else if (other.gameObject.name.Contains("Player")) ; //Do Something
         vanish(true);
     }
 
@@ -74,7 +75,7 @@ public class BallMove : MonoBehaviour
         }
         Debug.Log("collided: " + transform.position);
 
-        if(explode) Instantiate(Resources.Load("Impact02"), transform.position - transform.forward, transform.rotation);
+        if(explode) Instantiate(Resources.Load("Impact02"), transform.position - transform.forward, transform.rotation).AddComponent<DestroyParticleSystem>();
         Destroy(gameObject);
     }
 

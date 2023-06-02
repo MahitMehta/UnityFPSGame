@@ -1,3 +1,4 @@
+using Cinemachine;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -12,6 +13,8 @@ public class MainGameManager : MonoBehaviour
 
     private static MainGameManager _instance;
     public GameObject ammo;
+    public GameObject cinemachine;
+
 
     // top right bottom left sprint attk1 attk2
     public List<int> playerStateRT = new() { 0, 0, 0, 0, 0, 0, 0}; // realtime
@@ -31,12 +34,15 @@ public class MainGameManager : MonoBehaviour
 
     private void Start()
     {
+        string wizardClass = GameManager.Instance().getUser().wizardClass;
+        if (wizardClass == null) wizardClass = "FireWizard";
+        player = Instantiate(Resources.Load(wizardClass), new Vector3(-4, 1, -5), Quaternion.identity) as GameObject;
+        cinemachine.GetComponent<CinemachineVirtualCamera>().Follow = player.transform;
         player.AddComponent<Rigidbody>();
 
         //should be changed based on selections;
-        Player p = player.AddComponent<Player>();
-        p.ammo = ammo;
-        p.wizardClass = "Fire";
+        player.AddComponent<Player>().wizardClass = wizardClass;
+        player.name = "Player";
 
         player.GetComponent<Rigidbody>().freezeRotation = true;
 
@@ -60,7 +66,7 @@ public class MainGameManager : MonoBehaviour
         BatchTransform bt = new()
         {
             go = player.name,
-            pf = player.GetComponent<Player>().wizardClass + "Wizard",
+            pf = GameManager.Instance().users[GameManager.Instance().userId].wizardClass,
             ticks = GameManager.Instance().ticks,
             type = BTType.Transform,
             scene = 2,

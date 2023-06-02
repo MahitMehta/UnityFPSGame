@@ -27,10 +27,12 @@ public class Player : MonoBehaviour
     void Start()
     {
         sceneName = SceneManager.GetActiveScene().name;
-        camera = gameObject.GetComponentInChildren<Camera>();
+        camera = Camera.main;
         animator = gameObject.GetComponentInChildren<Animator>();
 
         indexFinger = getIndexFinger(transform);
+
+        ammo = Resources.Load(wizardClass.Substring(0, wizardClass.IndexOf("W")) + "ball") as GameObject;
 
     }
 
@@ -46,6 +48,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(animator == null) animator = gameObject.GetComponentInChildren<Animator>();
 
         //aiming
 
@@ -149,9 +152,10 @@ public class Player : MonoBehaviour
         //will make attack2
         if (Input.GetMouseButtonDown(1) && sceneName == "GameScene")
         {
-            Instantiate(ammo, indexFinger.position, transform.rotation).AddComponent<BallMove>().source = gameObject;
+            GameObject ball = Instantiate(ammo, indexFinger.position, transform.rotation);
+            ball.AddComponent<BallMove>().source = gameObject;
+            ball.transform.LookAt(aimingPoint); 
             animator.SetTrigger("attack2");
-
             MainGameManager.Instance().playerStateRT[6] = 1;
         }
 

@@ -12,10 +12,13 @@ public class RoomManager : MonoBehaviour
     public TMPro.TMP_Dropdown clients;
     public TMPro.TMP_Text roomNameLabel;
     public GameObject player;
-    public Button startGame, goToLockeroom;
+    public Button startGame, goToLockeroom, select;
     public Camera lockeroom, main;
     public bool inLockeroom = false;
     public CursorLockMode cursorLockMode = CursorLockMode.Locked;
+    public Vector3 lockeroomPos;
+    public Vector3 lockeroomRot;
+    public GameObject charSelect;
 
     private static RoomManager _instance;
 
@@ -37,15 +40,26 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
+        select.onClick.AddListener(delegate
+        {
+            charSelect.GetComponent<CharacterSelect>().select();
+        });
+        lockeroom.enabled = false;
         startGame.onClick.AddListener(delegate {
             GameManager.Instance().SendMessages(new List<Message>() {
                     GameManager.Instance().ContructBroadcastMethodCallMessage("StartGame")
             });
         });
         goToLockeroom.onClick.AddListener(delegate {
+            /*if (!inLockeroom)
+            {
+                main.enabled = false;
+                lockeroom.enabled = true;
+            }*/
+            //StartCoroutine(switchCamPos(!inLockeroom));
             main.enabled = inLockeroom;
             lockeroom.enabled = !inLockeroom;
-            inLockeroom = true;
+            inLockeroom = !inLockeroom;
             //goToLockeroom.GetComponentInChildren<TMPro>()
         });
 
@@ -59,6 +73,30 @@ public class RoomManager : MonoBehaviour
         Cursor.lockState = cursorLockMode;
 
         GameManager.Instance().AddBTUpdate("player:room", PlayerBatchTranform);
+
+    }
+
+    public IEnumerator<Transform> switchCamPos(bool toLockerRoom)
+    {
+        if (toLockerRoom)
+        {
+            while(lockeroomPos!=lockeroom.transform.position || lockeroomRot != lockeroom.transform.eulerAngles)
+            {
+                lockeroom.transform.position = Vector3.Lerp(main.transform.position, lockeroomPos, (main.transform.position - lockeroom.transform.position).magnitude / (main.transform.position - lockeroomPos).magnitude + Time.deltaTime);
+                lockeroom.transform.position = Vector3.Lerp(main.transform.eulerAngles, lockeroomRot, (main.transform.eulerAngles - lockeroom.transform.eulerAngles).magnitude / (main.transform.eulerAngles - lockeroomRot).magnitude + Time.deltaTime);
+            }
+        }
+        else
+        {
+            while(main.transform.position !=lockeroom.transform.position || main.transform.eulerAngles != lockeroom.transform.position)
+            {
+                lockeroom.transform.position = Vector3.Lerp(lockeroomPos, main.transform.position, (main.transform.position - lockeroom.transform.position).magnitude * (1 / (main.transform.position - lockeroomPos).magnitude) + Time.deltaTime);
+                lockeroom.transform.position = Vector3.Lerp(lockeroomRot, main.transform.eulerAngles, (main.transform.eulerAngles - lockeroom.transform.eulerAngles).magnitude * (1 / (main.transform.eulerAngles - lockeroomRot).magnitude) + Time.deltaTime);
+            }
+            main.enabled = true;
+            lockeroom.enabled = false;
+        }
+        yield return null;
 
     }
 
@@ -78,7 +116,7 @@ public class RoomManager : MonoBehaviour
         BatchTransform bt = new()
         {
             go = player.name,
-            pf = player.GetComponent<Player>().wizardClass+"Wizard",
+            pf = player.GetComponent<Player>().wizardClass,
             type = BTType.Transform,
             ticks = GameManager.Instance().ticks,
             scene = 1,
