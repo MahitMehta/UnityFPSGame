@@ -125,7 +125,9 @@ namespace WSMessage {
     {
         public string userId;
         public string username;
-        public bool isConnected; 
+        public bool isConnected;
+        public int score = 0; 
+        public string wizardClass;
     }
 
     public class MessagesContainer

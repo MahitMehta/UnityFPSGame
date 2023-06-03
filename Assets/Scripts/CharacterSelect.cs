@@ -12,8 +12,8 @@ public class CharacterSelect : MonoBehaviour
     public float timeTillSnap;
     private float timeSinceLastScroll;
     private Quaternion rotationLastScroll;
-    public string selectionName;
-    public Button ready;
+    public GameObject selection;
+    public GameObject player, camera;
     void Start()
     {
         Debug.Log("choices" + choicesPF.Count);
@@ -24,7 +24,6 @@ public class CharacterSelect : MonoBehaviour
             choices.Add(Instantiate(choicesPF[i], transform.position, Quaternion.Euler(new Vector3(0, i * 360 / choicesPF.Count, 0))));
             choices[i].transform.SetParent(transform, true);
             choices[i].transform.position += choices[i].transform.forward * 2;
-            Debug.Log("here");
         }
 
 
@@ -36,11 +35,11 @@ public class CharacterSelect : MonoBehaviour
         float minD = 100;
         foreach (GameObject choice in choices)
         {
-            choice.transform.LookAt(Camera.main.transform);
-            if (Mathf.Abs((choice.transform.position - Camera.main.transform.position).magnitude) < minD)
+            choice.transform.LookAt(camera.transform);
+            if (Mathf.Abs((choice.transform.position - camera.transform.position).magnitude) < minD)
             {
-                selectionName = choice.name;
-                minD = Mathf.Abs((choice.transform.position - Camera.main.transform.position).magnitude);
+                selection = choice;
+                minD = Mathf.Abs((choice.transform.position - camera.transform.position).magnitude);
             }
         }
         if (Input.mouseScrollDelta.y != 0)
@@ -63,5 +62,12 @@ public class CharacterSelect : MonoBehaviour
                 }
             }
         }
+    }
+    public void select()
+    {
+        Destroy(player.transform.Find("PolyArtWizardMaskTintMat").gameObject);
+        Instantiate(selection.transform.Find("PolyArtWizardMaskTintMat"), player.transform);
+        GameManager.Instance().getUser().wizardClass = selection.name.Substring(0, selection.name.IndexOf("("));
+        Debug.Log(GameManager.Instance().getUser().wizardClass);
     }
 }

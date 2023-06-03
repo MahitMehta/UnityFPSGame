@@ -130,6 +130,14 @@ public class NetworkManager : MonoBehaviour
                     }
                     if (message.body.property == "username") users[userId].username = message.body.value;
 
+                    else if (message.body.property == "score")
+                    {
+                        Debug.Log(users[userId].username + ": " + message.body.value);
+                        users[userId].score = short.Parse(message.body.value);
+
+                        GameObject.Find("Player:" + message.body.userId).GetComponent<PlayerProperties>().score.text = message.body.value; 
+                    }
+
                     OnSetUserProperty(userId, message.body.property, message.body.value);
                 } else if (message.type.Equals(WSMessage.Type.BROADCAST_METHOD_CALL))
                 {

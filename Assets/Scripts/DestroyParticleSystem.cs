@@ -5,7 +5,6 @@ using UnityEngine;
 public class DestroyParticleSystem : MonoBehaviour
 {
     public ParticleSystem particleSystem;
-    private bool exploded = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,9 +17,7 @@ public class DestroyParticleSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!exploded)
-        {
-            exploded = true;
-        }
+        particleSystem.Stop();
+        if (particleSystem.particleCount == 0) Destroy(gameObject);
     }
 }

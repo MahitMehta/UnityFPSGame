@@ -56,9 +56,14 @@ public class BallMove : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.name == source.name) return;
-
-        Debug.Log(other.gameObject.name.StartsWith("Player:"));
-
+        else if (other.gameObject.name.Contains("Player") && !isClone)
+        {
+            GameManager.Instance().users[GameManager.Instance().userId].score += 1;
+            GameObject.Find("Player").GetComponent<PlayerProperties>().score.text = GameManager.Instance().users[GameManager.Instance().userId].score + "";
+            GameManager.Instance().SendMessages(new List<Message>() {
+                GameManager.Instance().ContructUserPropertyMessage("score",  GameManager.Instance().userId,  GameManager.Instance().users[GameManager.Instance().userId].score.ToString()),
+            });
+        }
         vanish(true);
     }
 
@@ -77,7 +82,7 @@ public class BallMove : MonoBehaviour
         }
         Debug.Log("collided: " + transform.position);
 
-        if(explode) Instantiate(Resources.Load("Impact02"), transform.position - transform.forward, transform.rotation);
+        if(explode) Instantiate(Resources.Load("Impact02"), transform.position - transform.forward, transform.rotation).AddComponent<DestroyParticleSystem>();
         Destroy(gameObject);
     }
 
