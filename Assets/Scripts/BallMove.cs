@@ -25,10 +25,11 @@ public class BallMove : MonoBehaviour
     [Update(Subscribe = false, TickRate = 1)]
     private void BallBatchTranform()
     {
+        Debug.Log(source.GetComponent<Player>().wizardClass.Substring(0, source.GetComponent<Player>().wizardClass.IndexOf("W")) + "ball");
         BatchTransform bt = new()
         {
             go = name,
-            pf = "Fireball",
+            pf = "Frostball",
             type = BTType.Instantiate,
             scene = 2,
             userId = GameManager.Instance().userId,

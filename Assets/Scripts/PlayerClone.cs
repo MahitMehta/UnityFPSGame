@@ -86,7 +86,6 @@ public class PlayerClone : MonoBehaviour
 
     public void updateSkin(string wizardClass)
     {
-        Debug.Log("nifeo");
         var p = Instantiate((GameObject)Resources.Load(wizardClass), transform.position, transform.rotation);
         p.name = gameObject.name;
         skin = wizardClass;
@@ -95,7 +94,6 @@ public class PlayerClone : MonoBehaviour
         s.animator = animator;
         s.playerState = playerState; 
         s.skin = skin;
-        Debug.Log(wizardClass);
         Destroy(gameObject);
 
     }
