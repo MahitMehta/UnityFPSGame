@@ -35,7 +35,8 @@ public class MainGameManager : MonoBehaviour
     private void Start()
     {
         string wizardClass = GameManager.Instance().getUser().wizardClass;
-        player = Instantiate(Resources.Load(wizardClass), new Vector3(-4, 1, -5), Quaternion.identity) as GameObject;
+
+        player = Instantiate(Resources.Load(wizardClass), new Vector3(UnityEngine.Random.Range(-8, -4), 1, -5), Quaternion.identity) as GameObject;
         cinemachine.GetComponent<CinemachineVirtualCamera>().Follow = player.transform;
         player.AddComponent<Rigidbody>();
 
@@ -62,6 +63,7 @@ public class MainGameManager : MonoBehaviour
     [Update(TickRate = 1, Subscribe = true)]
     private void PlayerBatchTranform()
     {
+        Debug.Log(GameManager.Instance().users[GameManager.Instance().userId].wizardClass);
         BatchTransform bt = new()
         {
             go = player.name,
@@ -105,6 +107,7 @@ public class MainGameManager : MonoBehaviour
             if (bt.type != BTType.Instantiate) go = GameObject.Find(bt.go + ":" + bt.userId);
             if (go == null)
             {
+                Debug.Log("New Wiz:" + bt.pf);
                 go = Instantiate(
                     Resources.Load(bt.pf, typeof(GameObject)),
                     new Vector3(bt.position[0], bt.position[1], bt.position[2]),

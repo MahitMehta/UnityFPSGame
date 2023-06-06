@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class Player : MonoBehaviour
 {
     public float rotationSpeed = 30;
-    public float positionSpeed = 2.5f;
+    public float positionSpeed = 3.5f;
     public Camera camera;
     public Animator animator;
 
@@ -34,7 +34,6 @@ public class Player : MonoBehaviour
         indexFinger = getIndexFinger(transform);
 
         ammo = Resources.Load(wizardClass.Substring(0, wizardClass.IndexOf("W")) + "ball") as GameObject;
-
     }
 
     Transform getIndexFinger(Transform parent)
@@ -168,7 +167,7 @@ public class Player : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.W))
         {
             Vector3 change = transform.forward * positionSpeed * Time.deltaTime;
-            transform.position += change * 2;
+            transform.position += change * 1.5f;
             if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[4] = 1;
             else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[4] = 1;
             animator.SetBool("sprint", true);

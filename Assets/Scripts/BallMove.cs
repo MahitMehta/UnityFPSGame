@@ -56,7 +56,14 @@ public class BallMove : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.name == source.name) return;
-        else if (other.gameObject.name.Contains("Player")) ; //Do Something
+        else if (other.gameObject.name.Contains("Player") && !isClone)
+        {
+            GameManager.Instance().users[GameManager.Instance().userId].score += 1;
+            GameObject.Find("Player").GetComponent<PlayerProperties>().score.text = GameManager.Instance().users[GameManager.Instance().userId].score + "";
+            GameManager.Instance().SendMessages(new List<Message>() {
+                GameManager.Instance().ContructUserPropertyMessage("score",  GameManager.Instance().userId,  GameManager.Instance().users[GameManager.Instance().userId].score.ToString()),
+            });
+        }
         vanish(true);
     }
 
