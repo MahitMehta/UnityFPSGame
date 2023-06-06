@@ -136,7 +136,7 @@ public class MainGameManager : MonoBehaviour
                 go.GetComponent<Interpolator>().AddPosition(bt);
                 go.GetComponent<Interpolator>().AddRotation(bt);
                 go.GetComponent<PlayerClone>().playerState = bt.state;
-            } else if (bt.pf == "Fireball" && bt.type == BTType.Instantiate)
+            } else if (bt.pf.Contains("ball") && bt.type == BTType.Instantiate)
             {
                 go.AddComponent<BallMove>().isClone = true; 
                 go.GetComponent<BallMove>().source = GameObject.Find(player.name + ":" + bt.userId);
