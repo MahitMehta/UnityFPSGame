@@ -35,7 +35,6 @@ public class MainGameManager : MonoBehaviour
     private void Start()
     {
         string wizardClass = GameManager.Instance().getUser().wizardClass;
-        if (wizardClass == null) wizardClass = "FireWizard";
         player = Instantiate(Resources.Load(wizardClass), new Vector3(-4, 1, -5), Quaternion.identity) as GameObject;
         cinemachine.GetComponent<CinemachineVirtualCamera>().Follow = player.transform;
         player.AddComponent<Rigidbody>();

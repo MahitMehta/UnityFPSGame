@@ -7,6 +7,7 @@ using WSMessage;
 using Newtonsoft.Json;
 using System;
 using System.Reflection;
+using System.Linq;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -135,6 +136,12 @@ public class NetworkManager : MonoBehaviour
                 {
                     string methodName = message.body.method;
                     object[] parameters = new object[] { };
+
+                    try
+                    {
+                        parameters = new object[] { message.body.parameters[0], message.body.parameters[1] };
+                    }
+                    catch (Exception e) { }
                     typeof(GameManager).GetMethod(methodName).Invoke(GameManager.Instance(), parameters);
                 }
             }
@@ -208,7 +215,18 @@ public class NetworkManager : MonoBehaviour
 
     public Message<BroadcastMethodCallBody> ContructBroadcastMethodCallMessage(string method)
     {
-        BroadcastMethodCallBody body = new() { method = method };
+        BroadcastMethodCallBody body = new() { method = method, parameters = null};
+        Message<BroadcastMethodCallBody> msg = new()
+        {
+            type = WSMessage.Type.BROADCAST_METHOD_CALL,
+            body = body
+        };
+
+        return msg;
+    }
+    public Message<BroadcastMethodCallBody> ContructBroadcastMethodCallMessage(string method, object[] parameters)
+    {
+        BroadcastMethodCallBody body = new() { method = method, parameters = parameters};
         Message<BroadcastMethodCallBody> msg = new()
         {
             type = WSMessage.Type.BROADCAST_METHOD_CALL,

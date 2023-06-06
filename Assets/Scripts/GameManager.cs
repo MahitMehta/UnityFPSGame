@@ -108,7 +108,7 @@ public class GameManager : NetworkManager
                 newClients.Add(new User()
                 {
                     userId = joinedUserId,
-                    username = joinedUsername
+                    username = joinedUsername,
                 });
                 if (RoomManager.Exists()) RoomManager.Instance().AddClients(newClients);
             });
@@ -159,5 +159,10 @@ public class GameManager : NetworkManager
     public User getUser()
     {
         return users[userId];
+    }
+
+    public void updateSkin(string userId, string skin)
+    {
+        GameObject.Find("Player:" + userId).GetComponent<PlayerClone>().updateSkin(skin);
     }
 }

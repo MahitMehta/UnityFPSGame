@@ -117,7 +117,8 @@ namespace WSMessage {
     [Serializable]
     public class BroadcastMethodCallBody
     {
-        public string method; 
+        public string method;
+        public object[] parameters;
     }
 
     [Serializable]
@@ -126,7 +127,7 @@ namespace WSMessage {
         public string userId;
         public string username;
         public bool isConnected;
-        public string wizardClass;
+        public string wizardClass = "FireWizard";
     }
 
     public class MessagesContainer
@@ -145,6 +146,9 @@ namespace WSMessage {
     {
         // broadcast method call body
         public string method { get; set;  }
+        
+        // broadcast method call parameters
+        public List<string> parameters { get; set;  }
 
         // room body 
         public string name { get; set; }

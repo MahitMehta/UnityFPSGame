@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -68,8 +70,11 @@ public class CharacterSelect : MonoBehaviour
         Destroy(player.transform.Find("PolyArtWizardMaskTintMat").gameObject);
         Instantiate(selection.transform.Find("PolyArtWizardMaskTintMat"), player.transform);
         GameManager.Instance().getUser().wizardClass = selection.name.Substring(0, selection.name.IndexOf("("));
-        Debug.Log(GameManager.Instance().getUser().wizardClass);
-
-
+        GameManager.Instance().SendMessages(new List<WSMessage.Message>() {
+                    GameManager.Instance().ContructBroadcastMethodCallMessage("updateSkin", new List<string>
+                    {
+                        GameManager.Instance().userId, GameManager.Instance().getUser().wizardClass
+                    }.Cast<object>().ToArray())
+            });
     }
 }

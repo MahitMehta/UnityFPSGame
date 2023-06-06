@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,15 +7,20 @@ public class PlayerClone : MonoBehaviour
 {
     public Animator animator;
     public List<int> playerState = new() { 0, 0, 0, 0, 0, 0, 0};
+    public string skin = "FireWizard";
     // Start is called before the first frame update
     void Start()
     {
         animator = gameObject.GetComponentInChildren<Animator>();
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        //Debug.Log(skin);
+        //Debug.Log(GameManager.Instance().users[userId].wizardClass);
+
         if (playerState[0] == 1)
         {
             animator.SetBool("walkFwd", true);
@@ -75,6 +81,22 @@ public class PlayerClone : MonoBehaviour
         }
 
 
+
+    }
+
+    public void updateSkin(string wizardClass)
+    {
+        Debug.Log("nifeo");
+        var p = Instantiate((GameObject)Resources.Load(wizardClass), transform.position, transform.rotation);
+        p.name = gameObject.name;
+        skin = wizardClass;
+        animator = p.GetComponent<Animator>();
+        var s = p.AddComponent<PlayerClone>();
+        s.animator = animator;
+        s.playerState = playerState; 
+        s.skin = skin;
+        Debug.Log(wizardClass);
+        Destroy(gameObject);
 
     }
 }

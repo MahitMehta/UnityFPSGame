@@ -17,7 +17,7 @@ public class Player : MonoBehaviour
 
     public GameObject ammo;
     public Transform indexFinger;
-    public string wizardClass = "Fire";
+    public string wizardClass = "FireWizard";
 
     public Vector3 aimingPoint;
 
@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        GetComponent<Rigidbody>().freezeRotation = true;
         sceneName = SceneManager.GetActiveScene().name;
         camera = Camera.main;
         animator = gameObject.GetComponentInChildren<Animator>();
@@ -164,7 +165,7 @@ public class Player : MonoBehaviour
             GetComponent<Rigidbody>().AddForce(Vector3.up * 5f, ForceMode.Impulse);
         }
 
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.W))
         {
             Vector3 change = transform.forward * positionSpeed * Time.deltaTime;
             transform.position += change * 2;
