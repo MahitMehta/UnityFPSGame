@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 using WSMessage;
 
 public class MainGameManager : MonoBehaviour
@@ -14,6 +15,12 @@ public class MainGameManager : MonoBehaviour
     private static MainGameManager _instance;
     public GameObject ammo;
     public GameObject cinemachine;
+
+    public TMPro.TMP_Text hp, shield;
+    public GameObject hpBar, shieldBar;
+    public Gradient hpGradient;
+    public int health = 100;
+    public int shielding = 0;
 
 
     // top right bottom left sprint attk1 attk2
@@ -34,6 +41,7 @@ public class MainGameManager : MonoBehaviour
 
     private void Start()
     {
+        takeDamage();
         string wizardClass = GameManager.Instance().getUser().wizardClass;
 
         player = Instantiate(Resources.Load(wizardClass), new Vector3(UnityEngine.Random.Range(-8, -4), 1, -5), Quaternion.identity) as GameObject;
@@ -96,6 +104,9 @@ public class MainGameManager : MonoBehaviour
 
             Cursor.lockState = cursorLockMode;
         }
+        //hit taken/healed
+        if (GameManager.Instance().getUser().shield != shielding || GameManager.Instance().getUser().hp != health) takeDamage();
+
     }
 
     public void HandleBatchTransformations(List<BatchTransform> transformations)
@@ -108,6 +119,7 @@ public class MainGameManager : MonoBehaviour
             if (go == null)
             {
                 Debug.Log("New Wiz:" + bt.pf);
+                bt.position[1] = 5;
                 go = Instantiate(
                     Resources.Load(bt.pf, typeof(GameObject)),
                     new Vector3(bt.position[0], bt.position[1], bt.position[2]),
@@ -146,6 +158,7 @@ public class MainGameManager : MonoBehaviour
         //triggers
         playerStateRT[5] = 0;
         playerStateRT[6] = 0;
+
     }
 
     public static bool Exists()
@@ -160,5 +173,18 @@ public class MainGameManager : MonoBehaviour
             throw new Exception("Main Game Manager Doesn't Exist");
         }
         return _instance;
+    }
+
+    public void takeDamage()
+    {
+        //getting hit
+        health = GameManager.Instance().getUser().hp;
+        shielding = GameManager.Instance().getUser().shield;
+        hp.text = health.ToString();
+        shield.text = shielding.ToString();
+        hpBar.GetComponent<RectTransform>().localScale = new Vector3(health / 100f, 1, 1);
+        shieldBar.GetComponent<RectTransform>().localScale = new Vector3(shielding / 100f, 1, 1);
+        hpBar.GetComponent<RawImage>().color = hpGradient.Evaluate(1 - health / 100f);
+
     }
 }
