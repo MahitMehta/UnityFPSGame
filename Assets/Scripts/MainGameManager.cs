@@ -1,4 +1,5 @@
 using Cinemachine;
+using Microlight.MicroBar;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -17,8 +18,9 @@ public class MainGameManager : MonoBehaviour
     public GameObject cinemachine;
 
     public TMPro.TMP_Text hp, shield;
-    public GameObject hpBar, shieldBar;
-    public Gradient hpGradient;
+    public GameObject shieldBar, hPBar, manaBar;
+    MicroBar shieldBarScript, hPBarScript, manaBarScript;
+    
     public int health = 100;
     public int shielding = 0;
 
@@ -41,6 +43,14 @@ public class MainGameManager : MonoBehaviour
 
     private void Start()
     {
+        shieldBarScript = shieldBar.GetComponent<MicroBar>();
+        //manaBarScript = manaBar.GetComponent<MicroBar>();
+        hPBarScript = hPBar.GetComponent<MicroBar>();
+
+        shieldBarScript.SetMaxHealth(100);
+        //manaBarScript.SetMaxHealth(100);
+        hPBarScript.SetMaxHealth(100);
+
         takeDamage();
         string wizardClass = GameManager.Instance().getUser().wizardClass;
 
@@ -182,9 +192,9 @@ public class MainGameManager : MonoBehaviour
         shielding = GameManager.Instance().getUser().shield;
         hp.text = health.ToString();
         shield.text = shielding.ToString();
-        hpBar.GetComponent<RectTransform>().localScale = new Vector3(health / 100f, 1, 1);
-        shieldBar.GetComponent<RectTransform>().localScale = new Vector3(shielding / 100f, 1, 1);
-        hpBar.GetComponent<RawImage>().color = hpGradient.Evaluate(1 - health / 100f);
+        shieldBarScript.UpdateHealthBar(shielding);
+        hPBarScript.UpdateHealthBar(health);
+
 
     }
 }
