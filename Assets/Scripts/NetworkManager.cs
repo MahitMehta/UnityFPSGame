@@ -113,7 +113,12 @@ public class NetworkManager : MonoBehaviour
                     users[message.body.userId].isConnected = false;
                     OnLeftRoom(message.body.userId);
 
-                } else if (message.type.Equals(WSMessage.Type.BATCH_TRANSFORM))
+                }
+                else if (message.type.Equals(WSMessage.Type.LEAVE_GAME))
+                {
+                    OnLeaveGame(message.body.userId);
+                }
+                else if (message.type.Equals(WSMessage.Type.BATCH_TRANSFORM))
                 {
                     OnBatchTransform(message.body.transformations);
 
@@ -145,7 +150,14 @@ public class NetworkManager : MonoBehaviour
                         }
                         else
                             user.shield -= damage;
-                        Debug.Log(user.hp);
+
+                        // Remove User From Room
+                        if (user.hp <= 0 && hitId == GameManager.Instance().userId)
+                        {
+                            GameManager.Instance().SendMessages(new List<Message>() {
+                                GameManager.Instance().ConstructLeftGameMessage()
+                            });
+                        }
                     }
 
                     OnSetUserProperty(userId, message.body.property, message.body.value);
@@ -228,6 +240,18 @@ public class NetworkManager : MonoBehaviour
         };
 
         ws.SendText(JsonConvert.SerializeObject(mc));
+    }
+
+    public Message<LeaveGameBody> ConstructLeftGameMessage()
+    {
+        LeaveGameBody body = new() { userId = GameManager.Instance().userId };
+        Message<LeaveGameBody> msg = new()
+        {
+            type = WSMessage.Type.LEAVE_GAME,
+            body = body
+        };
+
+        return msg;
     }
 
     public Message<BroadcastMethodCallBody> ContructBroadcastMethodCallMessage(string method)
@@ -314,6 +338,8 @@ public class NetworkManager : MonoBehaviour
     protected virtual void OnJoinedRoom(string roomName, string userId, string joinedUsername) {}
 
     protected virtual void OnLeftRoom(string userId) {}
+
+    protected virtual void OnLeaveGame(string userId) { }
 
     protected virtual void OnSetUserProperty(string userId, string property, string value) { }
 
