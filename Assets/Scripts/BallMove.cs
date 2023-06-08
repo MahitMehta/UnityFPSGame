@@ -10,6 +10,8 @@ public class BallMove : MonoBehaviour
     public GameObject source;
     public bool isClone = false;
     public GameObject explosion;
+    public int damage = 20;
+    public string effect;
 
     void Start()
     {
@@ -25,11 +27,10 @@ public class BallMove : MonoBehaviour
     [Update(Subscribe = false, TickRate = 1)]
     private void BallBatchTranform()
     {
-        Debug.Log(source.GetComponent<Player>().wizardClass.Substring(0, source.GetComponent<Player>().wizardClass.IndexOf("W")) + "ball");
         BatchTransform bt = new()
         {
             go = name,
-            pf = "Frostball",
+            pf = source.GetComponent<Player>().wizardClass.Substring(0, source.GetComponent<Player>().wizardClass.IndexOf("W")) + "ball",
             type = BTType.Instantiate,
             scene = 2,
             userId = GameManager.Instance().userId,
@@ -59,10 +60,8 @@ public class BallMove : MonoBehaviour
         if (other.gameObject.name == source.name) return;
         else if (other.gameObject.name.Contains("Player") && !isClone)
         {
-            GameManager.Instance().users[GameManager.Instance().userId].score += 1;
-            GameObject.Find("Player").GetComponent<PlayerProperties>().score.text = GameManager.Instance().users[GameManager.Instance().userId].score + "";
             GameManager.Instance().SendMessages(new List<Message>() {
-                GameManager.Instance().ContructUserPropertyMessage("score",  GameManager.Instance().userId,  GameManager.Instance().users[GameManager.Instance().userId].score.ToString()),
+                GameManager.Instance().ContructUserPropertyMessage("hit",  other.gameObject.name.Substring(7),  damage.ToString()),
             });
         }
         vanish(true);

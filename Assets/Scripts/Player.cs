@@ -1,6 +1,7 @@
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -22,10 +23,14 @@ public class Player : MonoBehaviour
     public Vector3 aimingPoint;
 
 
+
+
+
     private string sceneName; 
     // Start is called before the first frame update
     void Start()
     {
+
         GetComponent<Rigidbody>().freezeRotation = true;
         sceneName = SceneManager.GetActiveScene().name;
         camera = Camera.main;
@@ -179,10 +184,7 @@ public class Player : MonoBehaviour
             animator.SetBool("sprint", false);
         }
 
-
-
         
-
 
     }
 }

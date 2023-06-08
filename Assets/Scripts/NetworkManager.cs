@@ -131,12 +131,21 @@ public class NetworkManager : MonoBehaviour
                     }
                     if (message.body.property == "username") users[userId].username = message.body.value;
 
-                    else if (message.body.property == "score")
+                    else if (message.body.property == "hit")
                     {
-                        Debug.Log(users[userId].username + ": " + message.body.value);
-                        users[userId].score = short.Parse(message.body.value);
-
-                        GameObject.Find("Player:" + message.body.userId).GetComponent<PlayerProperties>().score.text = message.body.value; 
+                        int damage = short.Parse(message.body.value);
+                        string hitId = message.body.userId;
+                        User user = GameManager.Instance().users[hitId];
+                        if (user.shield == 0)
+                            user.hp -= damage;
+                        else if (user.shield < damage)
+                        {
+                            user.hp -= damage - user.shield;
+                            user.shield = 0;
+                        }
+                        else
+                            user.shield -= damage;
+                        Debug.Log(user.hp);
                     }
 
                     OnSetUserProperty(userId, message.body.property, message.body.value);
