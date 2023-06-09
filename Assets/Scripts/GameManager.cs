@@ -175,6 +175,6 @@ public class GameManager : NetworkManager
 
     public void updateSkin(string userId, string skin)
     {
-        GameObject.Find("Player:" + userId).GetComponent<PlayerClone>().updateSkin(skin);
+        if(userId!=null && skin!=null && GameObject.Find("Player:" + userId)!=null) GameObject.Find("Player:" + userId).GetComponent<PlayerClone>().updateSkin(skin);
     }
 }

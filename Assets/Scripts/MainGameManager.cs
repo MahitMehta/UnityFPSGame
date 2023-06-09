@@ -17,9 +17,9 @@ public class MainGameManager : MonoBehaviour
     public GameObject ammo;
     public GameObject cinemachine;
 
-    public TMPro.TMP_Text hp, shield;
+    public TMPro.TMP_Text hp, shield, mana;
     public GameObject shieldBar, hPBar, manaBar;
-    MicroBar shieldBarScript, hPBarScript, manaBarScript;
+    public MicroBar shieldBarScript, hPBarScript, manaBarScript;
     
     public int health = 100;
     public int shielding = 0;
@@ -44,11 +44,12 @@ public class MainGameManager : MonoBehaviour
     private void Start()
     {
         shieldBarScript = shieldBar.GetComponent<MicroBar>();
-        //manaBarScript = manaBar.GetComponent<MicroBar>();
+        manaBarScript = manaBar.GetComponent<MicroBar>();
         hPBarScript = hPBar.GetComponent<MicroBar>();
 
         shieldBarScript.SetMaxHealth(100);
-        //manaBarScript.SetMaxHealth(100);
+        shieldBarScript.UpdateHealthBar(0, true);
+        manaBarScript.SetMaxHealth(100);
         hPBarScript.SetMaxHealth(100);
 
         takeDamage();
@@ -194,7 +195,5 @@ public class MainGameManager : MonoBehaviour
         shield.text = shielding.ToString();
         shieldBarScript.UpdateHealthBar(shielding);
         hPBarScript.UpdateHealthBar(health);
-
-
     }
 }

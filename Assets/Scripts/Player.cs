@@ -15,12 +15,17 @@ public class Player : MonoBehaviour
 
     public float viewRotationXMax = 22.0f;
     public float viewRotationXMin = 0.0f;
+    public float mana = 100;
+    public float manaRegen; //for powerups
+    public float manaCost1 = 5;
+    public float manaCost2 = 20;
 
     public GameObject ammo;
     public Transform indexFinger;
     public string wizardClass = "FireWizard";
 
     public Vector3 aimingPoint;
+    float lastmoveTime = 0;
 
 
 
@@ -53,6 +58,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        lastmoveTime += Time.deltaTime;
         if(animator == null) animator = gameObject.GetComponentInChildren<Animator>();
 
         //aiming
@@ -85,6 +91,7 @@ public class Player : MonoBehaviour
             if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[0] = 1;
             else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[0] = 1;
             animator.SetBool("walkFwd", true);
+            lastmoveTime = 0;
         }
         else
         {
@@ -102,6 +109,8 @@ public class Player : MonoBehaviour
             if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[3] = 1;
             else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[3] = 1;
             animator.SetBool("walkLeft", true);
+            lastmoveTime = 0;
+
         }
         else
         {
@@ -119,6 +128,8 @@ public class Player : MonoBehaviour
             if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[1] = 1;
             else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[1] = 1;
             animator.SetBool("walkRight", true);
+            lastmoveTime = 0;
+
 
         }
         else
@@ -136,6 +147,8 @@ public class Player : MonoBehaviour
             if (sceneName == "GameScene") MainGameManager.Instance().playerStateRT[2] = 1;
             else if (sceneName == "RoomScene") RoomManager.Instance().playerStateRT[2] = 1;
             animator.SetBool("walkBack", true);
+            lastmoveTime = 0;
+
         }
         else
         {
@@ -144,24 +157,34 @@ public class Player : MonoBehaviour
             animator.SetBool("walkBack", false);
         }
 
-        if (Input.GetMouseButtonDown(0) && sceneName == "GameScene")
+
+
+
+        if (Input.GetMouseButtonDown(0) && sceneName == "GameScene" && mana >= manaCost1)
         {
             GameObject ball = Instantiate(ammo, indexFinger.position, transform.rotation);
             ball.AddComponent<BallMove>().source = gameObject;
             ball.transform.LookAt(aimingPoint);
             animator.SetTrigger("attack1");
             MainGameManager.Instance().playerStateRT[5] = 1;
-            
+            mana -= manaCost1;
+            MainGameManager.Instance().mana.text = mana.ToString();
+
+            MainGameManager.Instance().manaBarScript.UpdateHealthBar(mana);
         }
 
         //will make attack2
-        if (Input.GetMouseButtonDown(1) && sceneName == "GameScene")
+        if (Input.GetMouseButtonDown(1) && sceneName == "GameScene" && mana >= manaCost2)
         {
             GameObject ball = Instantiate(ammo, indexFinger.position, transform.rotation);
             ball.AddComponent<BallMove>().source = gameObject;
             ball.transform.LookAt(aimingPoint); 
             animator.SetTrigger("attack2");
             MainGameManager.Instance().playerStateRT[6] = 1;
+            mana -= manaCost1;
+            MainGameManager.Instance().mana.text = mana.ToString();
+
+            MainGameManager.Instance().manaBarScript.UpdateHealthBar(mana);
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -184,7 +207,13 @@ public class Player : MonoBehaviour
             animator.SetBool("sprint", false);
         }
 
+        //manaRegen
         
-
+        if(lastmoveTime > 3)
+        {
+            mana += manaRegen;
+            MainGameManager.Instance().manaBarScript.UpdateHealthBar(mana);
+            MainGameManager.Instance().mana.text = mana.ToString();
+        }
     }
 }

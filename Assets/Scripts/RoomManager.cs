@@ -44,8 +44,8 @@ public class RoomManager : MonoBehaviour
         {
             charSelect.GetComponent<CharacterSelect>().select();
         });
-        lockeroom.enabled = false;
-        select.enabled = false;
+        lockeroom.gameObject.SetActive(false);
+        select.gameObject.SetActive(false);
         startGame.onClick.AddListener(delegate {
             GameManager.Instance().SendMessages(new List<Message>() {
                     GameManager.Instance().ContructBroadcastMethodCallMessage("StartGame")
@@ -55,9 +55,9 @@ public class RoomManager : MonoBehaviour
             main.enabled = inLockeroom;
             lockeroom.enabled = !inLockeroom;
             inLockeroom = !inLockeroom;
-            goToLockeroom.enabled = false;
+            goToLockeroom.gameObject.SetActive(false);
             player.gameObject.SetActive(true);
-            select.enabled = false;
+            select.gameObject.SetActive(false);
             GameObject.Find("CharSelectRoom").SetActive(false);
         });
 
@@ -103,10 +103,10 @@ public class RoomManager : MonoBehaviour
         main.enabled = inLockeroom;
         lockeroom.enabled = !inLockeroom;
         inLockeroom = !inLockeroom;
-        goToLockeroom.enabled = true;
+        goToLockeroom.gameObject.SetActive(true);
         player.gameObject.SetActive(false);
         player.gameObject.transform.position = new Vector3(-7.85f, 100f, 6.93f);
-        select.enabled = true;
+        select.gameObject.SetActive(true);
         GameObject.Find("CharSelectRoom").SetActive(true);
     }
 

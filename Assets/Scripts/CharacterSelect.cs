@@ -70,6 +70,7 @@ public class CharacterSelect : MonoBehaviour
         Destroy(player.transform.Find("PolyArtWizardMaskTintMat").gameObject);
         Instantiate(selection.transform.Find("PolyArtWizardMaskTintMat"), player.transform);
         GameManager.Instance().getUser().wizardClass = selection.name.Substring(0, selection.name.IndexOf("("));
+        Debug.Log(GameManager.Instance().getUser().wizardClass);
         GameManager.Instance().SendMessages(new List<WSMessage.Message>() {
                     GameManager.Instance().ContructBroadcastMethodCallMessage("updateSkin", new List<string>
                     {
