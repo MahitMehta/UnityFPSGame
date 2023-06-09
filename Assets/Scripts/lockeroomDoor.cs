@@ -15,4 +15,9 @@ public class lockeroomDoor : MonoBehaviour
     {
         
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.name == "Player") RoomManager.Instance().lockeroomToggle();
+    }
 }

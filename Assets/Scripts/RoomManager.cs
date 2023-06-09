@@ -45,22 +45,20 @@ public class RoomManager : MonoBehaviour
             charSelect.GetComponent<CharacterSelect>().select();
         });
         lockeroom.enabled = false;
+        select.enabled = false;
         startGame.onClick.AddListener(delegate {
             GameManager.Instance().SendMessages(new List<Message>() {
                     GameManager.Instance().ContructBroadcastMethodCallMessage("StartGame")
             });
         });
         goToLockeroom.onClick.AddListener(delegate {
-            /*if (!inLockeroom)
-            {
-                main.enabled = false;
-                lockeroom.enabled = true;
-            }*/
-            //StartCoroutine(switchCamPos(!inLockeroom));
             main.enabled = inLockeroom;
             lockeroom.enabled = !inLockeroom;
             inLockeroom = !inLockeroom;
-            //goToLockeroom.GetComponentInChildren<TMPro>()
+            goToLockeroom.enabled = false;
+            player.gameObject.SetActive(true);
+            select.enabled = false;
+            GameObject.Find("CharSelectRoom").SetActive(false);
         });
 
         player.AddComponent<Rigidbody>();
@@ -98,6 +96,18 @@ public class RoomManager : MonoBehaviour
         }
         yield return null;
 
+    }
+
+    public void lockeroomToggle()
+    {
+        main.enabled = inLockeroom;
+        lockeroom.enabled = !inLockeroom;
+        inLockeroom = !inLockeroom;
+        goToLockeroom.enabled = true;
+        player.gameObject.SetActive(false);
+        player.gameObject.transform.position = new Vector3(-7.85f, 100f, 6.93f);
+        select.enabled = true;
+        GameObject.Find("CharSelectRoom").SetActive(true);
     }
 
     public void OnLeftRoom(string userId)
