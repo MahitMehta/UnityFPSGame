@@ -60,6 +60,7 @@ public class BallMove : MonoBehaviour
         if (other.gameObject.name == source.name) return;
         else if (other.gameObject.name.Contains("Player") && !isClone)
         {
+
             GameManager.Instance().SendMessages(new List<Message>() {
                 GameManager.Instance().ContructUserPropertyMessage("hit",  other.gameObject.name.Substring(7),  damage.ToString()),
             });

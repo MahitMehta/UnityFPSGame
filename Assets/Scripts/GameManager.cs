@@ -133,6 +133,18 @@ public class GameManager : NetworkManager
         });
     }
 
+    protected override void OnLeaveGame(string disconnectedUserId)
+    {
+        UnityMainThreadDispatcher.Instance().Enqueue(delegate
+        {
+            if (MainGameManager.Exists())
+            {
+                MainGameManager.Instance().OnLeftRoom(disconnectedUserId);
+                if (userId == disconnectedUserId) StartCoroutine(loadRoomScene());
+            }
+        });
+    }
+
     protected override void OnLeftRoom(string disconnectedUserId)
     {
         UnityMainThreadDispatcher.Instance().Enqueue(delegate

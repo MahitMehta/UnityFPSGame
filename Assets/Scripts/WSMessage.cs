@@ -11,7 +11,8 @@ namespace WSMessage {
         SET_USER_PROPERTY,
         BATCH_TRANSFORM,
         BROADCAST_METHOD_CALL,
-        SYNC_TICK
+        SYNC_TICK,
+        LEAVE_GAME
     }
 
     public enum BTType
@@ -44,6 +45,12 @@ namespace WSMessage {
     public class RoomBody
     {
         public string name;
+    }
+
+    [Serializable]
+    public class LeaveGameBody
+    {
+        public string userId;
     }
 
     [Serializable]
