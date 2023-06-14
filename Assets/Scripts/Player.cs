@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
 
     public Vector3 aimingPoint;
     float lastmoveTime = 0;
+    bool isGrounded = true;
 
 
 
