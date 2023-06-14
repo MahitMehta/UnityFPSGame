@@ -130,7 +130,6 @@ public class MainGameManager : MonoBehaviour
             if (go == null)
             {
                 Debug.Log("New Wiz:" + bt.pf);
-                bt.position[1] = 5;
                 go = Instantiate(
                     Resources.Load(bt.pf, typeof(GameObject)),
                     new Vector3(bt.position[0], bt.position[1], bt.position[2]),

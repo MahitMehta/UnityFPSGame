@@ -19,6 +19,7 @@ public class RoomManager : MonoBehaviour
     public Vector3 lockeroomPos;
     public Vector3 lockeroomRot;
     public GameObject charSelect;
+    public GameObject charSelectRoom;
 
     private static RoomManager _instance;
 
@@ -44,7 +45,7 @@ public class RoomManager : MonoBehaviour
         {
             charSelect.GetComponent<CharacterSelect>().select();
         });
-        lockeroom.gameObject.SetActive(false);
+        lockeroom.enabled = false;
         select.gameObject.SetActive(false);
         startGame.onClick.AddListener(delegate {
             GameManager.Instance().SendMessages(new List<Message>() {
@@ -58,7 +59,7 @@ public class RoomManager : MonoBehaviour
             goToLockeroom.gameObject.SetActive(false);
             player.gameObject.SetActive(true);
             select.gameObject.SetActive(false);
-            GameObject.Find("CharSelectRoom").SetActive(false);
+            charSelectRoom.SetActive(false);
         });
 
         player.AddComponent<Rigidbody>();
@@ -74,40 +75,16 @@ public class RoomManager : MonoBehaviour
 
     }
 
-    public IEnumerator<Transform> switchCamPos(bool toLockerRoom)
+    public void lockeroomEnter()
     {
-        if (toLockerRoom)
-        {
-            while(lockeroomPos!=lockeroom.transform.position || lockeroomRot != lockeroom.transform.eulerAngles)
-            {
-                lockeroom.transform.position = Vector3.Lerp(main.transform.position, lockeroomPos, (main.transform.position - lockeroom.transform.position).magnitude / (main.transform.position - lockeroomPos).magnitude + Time.deltaTime);
-                lockeroom.transform.position = Vector3.Lerp(main.transform.eulerAngles, lockeroomRot, (main.transform.eulerAngles - lockeroom.transform.eulerAngles).magnitude / (main.transform.eulerAngles - lockeroomRot).magnitude + Time.deltaTime);
-            }
-        }
-        else
-        {
-            while(main.transform.position !=lockeroom.transform.position || main.transform.eulerAngles != lockeroom.transform.position)
-            {
-                lockeroom.transform.position = Vector3.Lerp(lockeroomPos, main.transform.position, (main.transform.position - lockeroom.transform.position).magnitude * (1 / (main.transform.position - lockeroomPos).magnitude) + Time.deltaTime);
-                lockeroom.transform.position = Vector3.Lerp(lockeroomRot, main.transform.eulerAngles, (main.transform.eulerAngles - lockeroom.transform.eulerAngles).magnitude * (1 / (main.transform.eulerAngles - lockeroomRot).magnitude) + Time.deltaTime);
-            }
-            main.enabled = true;
-            lockeroom.enabled = false;
-        }
-        yield return null;
-
-    }
-
-    public void lockeroomToggle()
-    {
-        main.enabled = inLockeroom;
-        lockeroom.enabled = !inLockeroom;
-        inLockeroom = !inLockeroom;
+        inLockeroom = true;
+        lockeroom.enabled = true;
+        main.enabled = false;
         goToLockeroom.gameObject.SetActive(true);
         player.gameObject.SetActive(false);
         player.gameObject.transform.position = new Vector3(-7.85f, 100f, 6.93f);
         select.gameObject.SetActive(true);
-        GameObject.Find("CharSelectRoom").SetActive(true);
+        charSelectRoom.SetActive(true);
     }
 
     public void OnLeftRoom(string userId)
