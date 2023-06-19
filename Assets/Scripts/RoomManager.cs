@@ -46,6 +46,7 @@ public class RoomManager : MonoBehaviour
             charSelect.GetComponent<CharacterSelect>().select();
         });
         lockeroom.enabled = false;
+        goToLockeroom.gameObject.SetActive(false);
         select.gameObject.SetActive(false);
         startGame.onClick.AddListener(delegate {
             GameManager.Instance().SendMessages(new List<Message>() {

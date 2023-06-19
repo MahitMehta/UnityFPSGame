@@ -43,7 +43,7 @@ public class NetworkManager : MonoBehaviour
 
     public void RemoveBTUpdate(string key)
     {
-        updates.Remove(key);
+        if (updates.ContainsKey(key)) updates.Remove(key);
     }
 
     public void AddBTUpdate(string key, Action cb)
@@ -138,9 +138,15 @@ public class NetworkManager : MonoBehaviour
 
                     else if (message.body.property == "hit")
                     {
+      
                         int damage = short.Parse(message.body.value);
                         string hitId = message.body.userId;
+              
                         User user = GameManager.Instance().users[hitId];
+                        Debug.Log(user.username + " Shield:" + user.shield);
+                        Debug.Log(user.username + " HP:" + user.hp);
+                        Debug.Log(user.username + " Damange Incurred:" + damage);
+
                         if (user.shield == 0)
                             user.hp -= damage;
                         else if (user.shield < damage)

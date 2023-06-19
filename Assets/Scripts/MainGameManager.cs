@@ -75,14 +75,15 @@ public class MainGameManager : MonoBehaviour
 
     public void OnLeftRoom(string userId)
     {
+        Debug.Log("Attempting to delete: " + userId);
         GameObject go = GameObject.Find("Player:" + userId);
+        Debug.Log("go: " + go.name);
         Destroy(go);
     }
 
     [Update(TickRate = 1, Subscribe = true)]
     private void PlayerBatchTranform()
     {
-        Debug.Log(GameManager.Instance().users[GameManager.Instance().userId].wizardClass);
         BatchTransform bt = new()
         {
             go = player.name,
@@ -129,7 +130,7 @@ public class MainGameManager : MonoBehaviour
             if (bt.type != BTType.Instantiate) go = GameObject.Find(bt.go + ":" + bt.userId);
             if (go == null)
             {
-                Debug.Log("New Wiz:" + bt.pf);
+                if (bt.pf.EndsWith("Wizard") && GameManager.Instance().users[bt.userId].hp <= 0) return;  
                 go = Instantiate(
                     Resources.Load(bt.pf, typeof(GameObject)),
                     new Vector3(bt.position[0], bt.position[1], bt.position[2]),

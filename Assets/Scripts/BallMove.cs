@@ -52,7 +52,7 @@ public class BallMove : MonoBehaviour
     void Update()
     {
         rb.velocity = transform.forward * 25;
-        if ((transform.position - source.transform.position).magnitude > 50) vanish(false);
+        if ((transform.position - source.transform.position).magnitude > 50) Vanish(false);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -60,15 +60,14 @@ public class BallMove : MonoBehaviour
         if (other.gameObject.name == source.name) return;
         else if (other.gameObject.name.Contains("Player") && !isClone)
         {
-
             GameManager.Instance().SendMessages(new List<Message>() {
-                GameManager.Instance().ContructUserPropertyMessage("hit",  other.gameObject.name.Substring(7),  damage.ToString()),
+                GameManager.Instance().ContructUserPropertyMessage("hit",  other.gameObject.name[7..],  damage.ToString()),
             });
         }
-        vanish(true);
+        Vanish(true);
     }
 
-    private void vanish(bool explode)
+    private void Vanish(bool explode)
     {
         foreach (Transform child in transform)
         {

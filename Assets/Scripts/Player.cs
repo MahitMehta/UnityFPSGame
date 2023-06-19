@@ -16,9 +16,9 @@ public class Player : MonoBehaviour
     public float viewRotationXMax = 22.0f;
     public float viewRotationXMin = 0.0f;
     public float mana = 100;
-    public float manaRegen; //for powerups
-    public float manaCost1 = 5;
-    public float manaCost2 = 20;
+    public float manaRegen = 5; //for powerups
+    public float manaCost1 = 10;
+    public float manaCost2 = 10;
 
     public GameObject ammo;
     public Transform indexFinger;
@@ -172,6 +172,7 @@ public class Player : MonoBehaviour
             MainGameManager.Instance().mana.text = mana.ToString();
 
             MainGameManager.Instance().manaBarScript.UpdateHealthBar(mana);
+            lastmoveTime = 0;
         }
 
         //will make attack2
@@ -186,11 +187,13 @@ public class Player : MonoBehaviour
             MainGameManager.Instance().mana.text = mana.ToString();
 
             MainGameManager.Instance().manaBarScript.UpdateHealthBar(mana);
+            lastmoveTime = 0;
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
             GetComponent<Rigidbody>().AddForce(Vector3.up * 5f, ForceMode.Impulse);
+            lastmoveTime = 0;
         }
 
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.W))
@@ -210,11 +213,12 @@ public class Player : MonoBehaviour
 
         //manaRegen
         
-        if(lastmoveTime > 3)
+        if(lastmoveTime > 3 && MainGameManager.Exists() && mana < 100)
         {
-            mana += manaRegen;
+            mana = mana + manaRegen > 100 ? 100 : mana + manaRegen;
             MainGameManager.Instance().manaBarScript.UpdateHealthBar(mana);
             MainGameManager.Instance().mana.text = mana.ToString();
+            lastmoveTime = 0; 
         }
     }
 }

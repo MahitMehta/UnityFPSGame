@@ -32,6 +32,12 @@ public class GameManager : NetworkManager
 
     public void StartGame() {
         RemoveBTUpdate("player:room");
+        RemoveBTUpdate("player:game");
+
+        foreach (var userId in users.Keys) {
+            users[userId].hp = 100; // reset player health
+        }
+
         SceneManager.LoadScene("GameScene");
     }
 
@@ -139,8 +145,15 @@ public class GameManager : NetworkManager
         {
             if (MainGameManager.Exists())
             {
-                MainGameManager.Instance().OnLeftRoom(disconnectedUserId);
-                if (userId == disconnectedUserId) StartCoroutine(loadRoomScene());
+                if (userId == disconnectedUserId)
+                {
+                    users[disconnectedUserId].hp = 100;
+                    RemoveBTUpdate("player:game");
+                    StartCoroutine(loadRoomScene());
+                } else
+                {
+                    MainGameManager.Instance().OnLeftRoom(disconnectedUserId);
+                }
             }
         });
     }
