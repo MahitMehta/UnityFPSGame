@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657815, g: 0.49641192, b: 0.57481617, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -9843,6 +9843,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
+  supplyDropCoolDown: 10
+  supplyDropTime: 0
   cursorLockMode: 1
   ammo: {fileID: 2501932109891425504, guid: 9a78a6332cb075746af30d006b1687e6, type: 3}
   cinemachine: {fileID: 795685343}
@@ -9857,6 +9859,10 @@ MonoBehaviour:
   manaBarScript: {fileID: 0}
   health: 100
   shielding: 0
+  powerups:
+  - {fileID: 5672416593029594367, guid: f03df5fc5e4b0854584c2ba290adfbda, type: 3}
+  - {fileID: 2268538678893706133, guid: 7eb33052d3efb554aaf7e88dcb06581d, type: 3}
+  - {fileID: 8675985045912274417, guid: 6394e566031b8c644a81abd2ea14e3f3, type: 3}
   playerStateRT: 00000000000000000000000000000000000000000000000000000000
 --- !u!4 &1087123388
 Transform:

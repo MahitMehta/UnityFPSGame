@@ -6,10 +6,14 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using WSMessage;
+using static Unity.VisualScripting.Member;
 
 public class MainGameManager : MonoBehaviour
 {
+    public static bool dropped;
     public GameObject player;
+    public float supplyDropCoolDown;
+    public float supplyDropTime;
 
     public CursorLockMode cursorLockMode = CursorLockMode.Locked;
 
@@ -24,6 +28,7 @@ public class MainGameManager : MonoBehaviour
     public int health = 100;
     public int shielding = 0;
 
+    public List<GameObject> powerups;
 
     // top right bottom left sprint attk1 attk2
     public List<int> playerStateRT = new() { 0, 0, 0, 0, 0, 0, 0}; // realtime
@@ -43,6 +48,8 @@ public class MainGameManager : MonoBehaviour
 
     private void Start()
     {
+        
+
         shieldBarScript = shieldBar.GetComponent<MicroBar>();
         manaBarScript = manaBar.GetComponent<MicroBar>();
         hPBarScript = hPBar.GetComponent<MicroBar>();
@@ -109,6 +116,13 @@ public class MainGameManager : MonoBehaviour
 
     public void Update()
     {
+        if (supplyDropTime <= 0 && !dropped)
+        {
+            makeSupplyDrop();
+            supplyDropTime = supplyDropCoolDown;
+        }
+        supplyDropTime -= Time.deltaTime; 
+
         if (Input.GetKeyDown(KeyCode.L))
         {
             if (cursorLockMode == CursorLockMode.Locked) cursorLockMode = CursorLockMode.None;
@@ -195,5 +209,35 @@ public class MainGameManager : MonoBehaviour
         shield.text = shielding.ToString();
         shieldBarScript.UpdateHealthBar(shielding);
         hPBarScript.UpdateHealthBar(health);
+    }
+
+    public void makeSupplyDrop()
+    {
+        var r = new System.Random();
+        for(int i = 0; i < 100; i++)
+        {
+            Debug.Log(r.Next(0, powerups.Count));
+        }
+        GameObject drop = powerups[r.Next(0, powerups.Count)];
+        var s = Instantiate(drop, new Vector3((float)(r.NextDouble() * 25) - 17.5f, 20, (float)r.NextDouble() * 10 - 10), Quaternion.identity);
+        BatchTransform bt = new()
+        {
+            go = s.name,
+            pf = drop.name,
+            type = BTType.Instantiate,
+            scene = 2,
+            userId = GameManager.Instance().userId,
+            position = new List<float>() {
+                    s.transform.position.x,
+                    s.transform.position.y,
+                    s.transform.position.z
+            },
+            rotation = new List<float>() {
+                    s.transform.eulerAngles.x,
+                    s.transform.eulerAngles.y,
+                    s.transform.eulerAngles.z
+                },
+        };
+        GameManager.Instance().batchTransforms.Add(bt);
     }
 }

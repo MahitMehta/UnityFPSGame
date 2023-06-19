@@ -97,4 +97,9 @@ public class PlayerClone : MonoBehaviour
         Destroy(gameObject);
 
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.GetComponent<PowerUp>() != null) Destroy(other.gameObject);
+    }
 }

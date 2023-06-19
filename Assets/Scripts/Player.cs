@@ -220,5 +220,30 @@ public class Player : MonoBehaviour
             MainGameManager.Instance().mana.text = mana.ToString();
             lastmoveTime = 0; 
         }
+
+
+
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        var e = other.GetComponent<PowerUp>();
+        if (e != null)
+        {
+            if (e.type == PowerUp.powerup.HEALTH)
+            {
+                GameManager.Instance().getUser().hp = Mathf.Clamp(GameManager.Instance().getUser().hp + 40, 0, 100);
+                MainGameManager.Instance().takeDamage();
+            }
+            else if (e.type == PowerUp.powerup.MANA)
+            {
+                manaRegen += 5;
+            }else if (e.type == PowerUp.powerup.SHIELD)
+            {
+                GameManager.Instance().getUser().shield = Mathf.Clamp(GameManager.Instance().getUser().shield + 40, 0, 100);
+                MainGameManager.Instance().takeDamage();
+            }
+            Destroy(other.gameObject);
+        }
     }
 }
